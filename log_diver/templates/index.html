@@ -1,0 +1,143 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>SD Tool: Log Diver</title>
+
+        <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+        <link href="http://getbootstrap.com/assets/css/ie10-viewport-bug-workaround.css" rel="stylesheet">
+
+        <!-- Custom styles for this template -->
+        <link href="http://getbootstrap.com/examples/sticky-footer-navbar/sticky-footer-navbar.css" rel="stylesheet">
+
+        <!-- Latest compiled and minified CSS -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+        <!-- Optional theme -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+    </head>
+    <body>
+      <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+          <!-- Brand and toggle get grouped for better mobile display -->
+          <div class="navbar-header">
+            <a class="navbar-brand" href="/">Log Diver</a>
+            
+          </div>
+          <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+          <p class="navbar-text">SD Tools</p>
+          </div>
+        </div>
+      </nav>
+
+      <div class="container">
+        <form>
+          <div class="row">
+            <div class="col-lg-5">
+              <div class="form-group">
+                <label for="URL">URL</label>
+                <input type="text" name="url" class="form-control" id="url">
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-lg-2">
+              <div class="form-group">
+                <label for="URL">Server IP</label>
+                <input type="text" class="form-control" id="server_ip" placeholder="">
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-lg-5">
+              <div class="form-group">
+                <label>Request Header</label>
+                <textarea class="form-control" rows="3" id="result_request_header"></textarea>
+              </div>
+            </div>
+          </div>
+          <button id="submit" class="btn btn-default" type="button">Submit</button>    
+        </form>
+      </div>
+
+      <br/>
+
+      <div class="container well">
+        <label>Progress</label> (<label>something</label>)<br/>
+        <div class="progress">
+          <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100" style="width: 45%">
+            <span class="sr-only">45% Complete</span>
+          </div>
+        </div>
+
+        <br/>
+
+        <div class="row">
+          <div class="col-lg-6">
+            <label>Google Map</label><br/>
+            <iframe class="embed-responsive-item" id="googlemap" src="/googlemap" style="width:100%; height:50%;margin:0px;border:0px"></iframe>
+            <!-- <iframe class="embed-responsive-item" src=""></iframe> -->
+          </div>
+          <div class="col-lg-5">
+            <div class="row">
+              <label>Response Header</label><br/>
+              <textarea readonly class="form-control" rows="5" id="result_response_header"></textarea>
+            </div>
+            <br/>
+            <div class="row">
+              <label>Table Result</label><br/>
+              <textarea readonly class="form-control" rows="5"></textarea>
+            </div>
+          </div>
+      </div>
+
+      <br/><br/>
+      <label>Logs</label><br/>
+      <textarea readonly class="form-control" rows="5" id="result_logs"></textarea>
+      
+      <br/><br/>
+
+
+      <!-- 
+      <footer class="footer">
+        <div class="container">
+          <p class="text-muted">Sangmin, Ricky, Yujin and Astin - Solutions Arichtect Dev Group, Akamai Korea</p>
+        </div>
+      </footer> 
+      -->
+            
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+      <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+      <script src="http://getbootstrap.com/assets/js/ie10-viewport-bug-workaround.js"></script>
+
+      <script type="text/javascript">
+        var $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+        
+        $(function() {
+          var submit_form = function(e) {
+            $.getJSON($SCRIPT_ROOT + '/log_diver', {
+              url: $('input[name="url"]').val(),
+            }, function(data) {
+              $('#result_request_header').text(data.request_header);
+              $('#result_response_header').text(data.response_header);
+              $('#result_logs').text(data.logs);
+              $("#googlemap").attr("src", "/googlemap?google_maps=" + data.google_maps);
+
+              $('input[name=url]').focus().select();
+            });
+            return false;
+          };
+
+          $('button#submit').bind('click', submit_form);
+
+          $('input[type=text]').bind('keydown', function(e) {
+            if (e.keyCode == 13) {
+              submit_form(e);
+            }
+          });
+          $('input[name=url]').focus();
+        });
+      </script>
+    </body>
+</html>
