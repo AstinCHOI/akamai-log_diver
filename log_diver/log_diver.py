@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, url_for, jsonify, stream_with_context, Response
-# from flask.ext.aiohttp import async
+from flask_socketio import send, emit, SocketIO
 
 import subprocess
 import logging
@@ -11,7 +11,8 @@ RESPONSE_HEADER = 2
 LOGS = 3
 
 application = Flask(__name__)
-
+application.config['SECRET_KEY'] = 'secret!'
+socketio = SocketIO(application)
 
 @application.route('/')
 def index():
@@ -29,11 +30,14 @@ def googlemap():
     return render_template('googlemap.html', maps=google_maps)
 
 
-@application.route('/log_diver')
-def log_diver():
-    url = request.args.get('url')
-    
-    pipe = subprocess.Popen(secrets.LSG_COMMAND.format(url), \
+@socketio.on('log_diver')
+def log_diver(data):
+    # TODO: url check
+
+    # emit('log_diver', str(data))
+    print(str(data['url']))
+
+    pipe = subprocess.Popen(secrets.LSG_COMMAND.format(data['url']), \
         shell=True, stdout=subprocess.PIPE)
 
     status = 0
@@ -58,16 +62,57 @@ def log_diver():
 
         if status == REQUEST_HEADER:
             request_header = request_header + line
+            emit('log_diver', request_header)
         elif status == RESPONSE_HEADER:
             response_header = response_header + line
+            emit('log_diver', response_header)
         elif status == LOGS:
             if len(line) > 1:
                 times = line.split(' ')
                 total = int(times[4]) + int(times[5]) + int(times[6])
                 google_maps.append([google_map[0], google_map[1], google_map[2], total])
             logs = logs + line
+            emit('log_diver', logs)
 
-    return jsonify(request_header=request_header, response_header=response_header, logs=logs, google_maps=str(google_maps))
+# @socketio.on('log_diver')
+# def log_diver():
+#     url = request.args.get('url')
+    
+#     pipe = subprocess.Popen(secrets.LSG_COMMAND.format(url), \
+#         shell=True, stdout=subprocess.PIPE)
+
+#     status = 0
+#     request_header = ''
+#     response_header = ''
+#     logs = ''
+#     google_map = ''
+#     google_maps = [['US SANTACLARA', 37.3519, -121.952],]
+#     while pipe.poll() is None:
+#         line = pipe.stdout.readline().decode('utf-8')
+
+#         if line.startswith("[Request Header]"):
+#             status = REQUEST_HEADER
+#             continue
+#         elif line.startswith("[Response Header]"):
+#             status = RESPONSE_HEADER
+#             continue
+#         elif line.startswith("[LOGS]"):
+#             status = LOGS
+#             google_map = line.split('] [')[2][:-2].split('|')
+#             continue
+
+#         if status == REQUEST_HEADER:
+#             request_header = request_header + line
+#         elif status == RESPONSE_HEADER:
+#             response_header = response_header + line
+#         elif status == LOGS:
+#             if len(line) > 1:
+#                 times = line.split(' ')
+#                 total = int(times[4]) + int(times[5]) + int(times[6])
+#                 google_maps.append([google_map[0], google_map[1], google_map[2], total])
+#             logs = logs + line
+
+    # return jsonify(request_header=request_header, response_header=response_header, logs=logs, google_maps=str(google_maps))
 
 
 # import re
@@ -87,4 +132,6 @@ def log_diver():
 
 
 if __name__ == "__main__":
-    application.run(host='0.0.0.0')
+    # application.run(host='0.0.0.0')
+    socketio.run(application)
+    
