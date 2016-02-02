@@ -136,11 +136,13 @@
 
       <script type="text/javascript">
         var $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
-        var socket = io.connect($SCRIPT_ROOT);
-        socket.on('connect', function() {
-
-        });
+        
         $("#submit").click(function() {    
+          var socket = io.connect($SCRIPT_ROOT);
+          socket.on('connect', function() {
+            // pass
+          });
+          
           var url = $('input[name="url"]').val();
 
           console.log("socket.io connected");
@@ -148,13 +150,15 @@
 
           socket.on('log_diver', function(message) {
             console.log('message: ' + message);
+
+            socket.on('disconnect', function() {
+              // pass
+            });
           });
         });
 
         $(function() {
-
-
-
+          
           // var submit_form = function(e) {
           //   $.getJSON($SCRIPT_ROOT + '/log_diver', {
           //     url: $('input[name="url"]').val(),
