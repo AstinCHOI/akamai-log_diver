@@ -11,7 +11,7 @@ LOG = 3
 
 application = Flask(__name__)
 application.config['SECRET_KEY'] = 'secret!'
-socketio = SocketIO(application)
+socketio = SocketIO(application, ping_timeout=300, ping_interval=300)
 
 @application.route('/')
 def index():
@@ -57,16 +57,14 @@ def log_diver(data):
             google_map = line.split('] [')[2][:-2].split('|')
             continue
         elif line.startswith("\rProgress:"):
-            print(line)
-            progress = line.strip().split(' ')[2]
-            print(progress)
+            progress = line.split(' ')[2]
             continue
 
         if status == REQUEST_HEADER:
             if line.startswith("[/Request Header]"):
                 emit('log_diver', json.dumps({
                     'type': 'request',
-                    'progress': '20%',
+                    'progress': '30%',
                     'content': request_header
                 }))
 
@@ -75,25 +73,31 @@ def log_diver(data):
             if line.startswith("[/Response Header]"):
                 emit('log_diver', json.dumps({
                     'type': 'response',
-                    'progress': '30%',
+                    'progress': '40%',
                     'content': response_header
                 }))
 
             response_header = response_header + line
         elif status == LOG:
-            if line.startswith("[/Log]"):
-                emit('log_diver', json.dumps({
-                    'type': 'log',
-                    'progress': progress,
-                    'content': logs
-                }))
-            else:
+            if line.startswith("[Log]"):
                 try:     
                     times = line.split(' ')
                     total = int(times[4]) + int(times[5]) + int(times[6])
                     google_maps.append([google_map[0], google_map[1], google_map[2], total])
                 except IndexError:
                     pass
+            elif line.startswith("[/Log]"):
+                emit('log_diver', json.dumps({
+                    'type': 'log',
+                    'progress': progress,
+                    'content': logs,
+                    'google_maps': str(google_maps)
+                }))
+            else:
+                emit('log_diver', json.dumps({
+                    'type': 'progress',
+                    'progress': progress
+                }))
 
             logs = logs + line
             
