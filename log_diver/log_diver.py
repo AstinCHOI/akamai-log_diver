@@ -1,14 +1,13 @@
 from flask import Flask, render_template, request, url_for, jsonify, stream_with_context, Response
 from flask_socketio import send, emit, SocketIO
 
-import subprocess
-import logging
+import subprocess, logging, json
 import secrets
 
 
 REQUEST_HEADER = 1
 RESPONSE_HEADER = 2
-LOGS = 3
+LOG = 3
 
 application = Flask(__name__)
 application.config['SECRET_KEY'] = 'secret!'
@@ -33,14 +32,11 @@ def googlemap():
 @socketio.on('log_diver')
 def log_diver(data):
     # TODO: url check
-
-    # emit('log_diver', str(data))
-    print(str(data['url']))
-
     pipe = subprocess.Popen(secrets.LSG_COMMAND.format(data['url']), \
         shell=True, stdout=subprocess.PIPE)
 
     status = 0
+    progress = ''
     request_header = ''
     response_header = ''
     logs = ''
@@ -55,24 +51,52 @@ def log_diver(data):
         elif line.startswith("[Response Header]"):
             status = RESPONSE_HEADER
             continue
-        elif line.startswith("[LOGS]"):
-            status = LOGS
+        elif line.startswith("[Log]"):
+            logs = ''
+            status = LOG
             google_map = line.split('] [')[2][:-2].split('|')
+            continue
+        elif line.startswith("\rProgress:"):
+            print(line)
+            progress = line.strip().split(' ')[2]
+            print(progress)
             continue
 
         if status == REQUEST_HEADER:
+            if line.startswith("[/Request Header]"):
+                emit('log_diver', json.dumps({
+                    'type': 'request',
+                    'progress': '20%',
+                    'content': request_header
+                }))
+
             request_header = request_header + line
-            emit('log_diver', request_header)
         elif status == RESPONSE_HEADER:
+            if line.startswith("[/Response Header]"):
+                emit('log_diver', json.dumps({
+                    'type': 'response',
+                    'progress': '30%',
+                    'content': response_header
+                }))
+
             response_header = response_header + line
-            emit('log_diver', response_header)
-        elif status == LOGS:
-            if len(line) > 1:
-                times = line.split(' ')
-                total = int(times[4]) + int(times[5]) + int(times[6])
-                google_maps.append([google_map[0], google_map[1], google_map[2], total])
+        elif status == LOG:
+            if line.startswith("[/Log]"):
+                emit('log_diver', json.dumps({
+                    'type': 'log',
+                    'progress': progress,
+                    'content': logs
+                }))
+            else:
+                try:     
+                    times = line.split(' ')
+                    total = int(times[4]) + int(times[5]) + int(times[6])
+                    google_maps.append([google_map[0], google_map[1], google_map[2], total])
+                except IndexError:
+                    pass
+
             logs = logs + line
-            emit('log_diver', logs)
+            
 
 # @socketio.on('log_diver')
 # def log_diver():
