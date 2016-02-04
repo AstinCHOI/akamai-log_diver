@@ -5,10 +5,6 @@ import subprocess, logging, json
 import secrets
 
 
-REQUEST_HEADER = 1
-RESPONSE_HEADER = 2
-LOG = 3
-
 application = Flask(__name__)
 application.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(application, ping_timeout=300, ping_interval=300)
@@ -23,7 +19,7 @@ def googlemap():
     google_maps = request.args.get('google_maps')
     if google_maps is None:
         google_maps = [
-           ['US CA SANTACLARA', 37.3519, -121.952],
+           ['_', 37.3519, -121.952, '0.0.0.0', 'US CA SANTACLARA'],
         ];
      
     return render_template('googlemap.html', maps=google_maps)
@@ -31,7 +27,12 @@ def googlemap():
 
 @socketio.on('log_diver')
 def log_diver(data):
+    REQUEST_HEADER = 1
+    RESPONSE_HEADER = 2
+    LOG = 3
+    
     # TODO: url check
+
     pipe = subprocess.Popen(secrets.LSG_COMMAND.format(data['url']), \
         shell=True, stdout=subprocess.PIPE)
 
@@ -41,7 +42,7 @@ def log_diver(data):
     response_header = ''
     logs = ''
     google_map = ''
-    google_maps = [['US SANTACLARA', 37.3519, -121.952],]
+    google_maps = [['_', 37.3519, -121.952, '0.0.0.0', 'US CA SANTACLARA'],]
     while pipe.poll() is None:
         line = pipe.stdout.readline().decode('utf-8')
 
@@ -55,6 +56,12 @@ def log_diver(data):
             logs = ''
             status = LOG
             google_map = line.split('] [')[2][:-2].split('|')
+            try:     
+                times = line.split(' ')
+                total = int(times[4]) + int(times[5]) + int(times[6])
+                google_maps.append([google_map[0], google_map[1], google_map[2], total])
+            except IndexError:
+                pass
             continue
         elif line.startswith("\rProgress:"):
             progress = line.split(' ')[2]
@@ -67,7 +74,6 @@ def log_diver(data):
                     'progress': '30%',
                     'content': request_header
                 }))
-
             request_header = request_header + line
         elif status == RESPONSE_HEADER:
             if line.startswith("[/Response Header]"):
@@ -76,17 +82,9 @@ def log_diver(data):
                     'progress': '40%',
                     'content': response_header
                 }))
-
             response_header = response_header + line
-        elif status == LOG:
-            if line.startswith("[Log]"):
-                try:     
-                    times = line.split(' ')
-                    total = int(times[4]) + int(times[5]) + int(times[6])
-                    google_maps.append([google_map[0], google_map[1], google_map[2], total])
-                except IndexError:
-                    pass
-            elif line.startswith("[/Log]"):
+        elif status == LOG:    
+            if line.startswith("[/Log]"):
                 emit('log_diver', json.dumps({
                     'type': 'log',
                     'progress': progress,

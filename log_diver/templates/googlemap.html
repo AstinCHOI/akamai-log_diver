@@ -1,152 +1,166 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
-    <meta charset="utf-8">
-    <title>Waypoints in directions</title>
-    <style>
-      html, body {
-        height: 100%;
-        margin: 0;
-        padding: 0;
-      }
-      #map {
-        height: 100%;
-      }
-      
-   .labels {
-     color: red;
-     background-color: white;
-     font-family: "Lucida Grande", "Arial", sans-serif;
-     font-size: 10px;
-     font-weight: bold;
-     text-align: center;
-     width: 40px;
-     border: 2px solid black;
-     white-space: nowrap;
-   }
-    </style>
-  </head>
-  <body>
-    <div id="map"></div>
+<head>
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+<meta charset="utf-8">
+<title>Waypoints in directions</title>
+<style>
+html, body {
+	height: 100%;
+	margin: 0;
+	padding: 0;
+}
 
-    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBWXSsnIR_BgsQ7wZBIoxYABRtI6FGwnuU&signed_in=true"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='markerwithlabel.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='label.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='v3_epoly_proj.js') }}"></script>
-    <script>
-    var poly;
-    // var mapInfo =
-    // [
-    //    ['1. C', -33.890542, 151.274856, 4],
-    //    ['2. P', -33.923036, 151.259052, 5],
-    //    ['3. IS', -34.028249, 151.157507, 3],
-    //    ['4. C', -33.80010128657071, 151.28747820854187, 2],
-    //    ['5. P', -33.950198, 151.259302, 1],
-    //    ['6. O', -33.765093, 151.305362, 1]
-    // ];
-    var mapInfo = {{ maps|safe }};
-    var symbolOne = {
-            path: 'M -2,0 0,-2 2,0 0,2 z',
-            strokeColor: '#F00',
-            fillColor: '#F00',
-            fillOpacity: 1
-          };
-    
-    function initMap() {
-          var map = new google.maps.Map(document.getElementById('map'), {
-              zoom: 5
-          });
-          var bounds = new google.maps.LatLngBounds();
-          
-          var markerInfo = new Array();
-          
-          for(i=0; i<mapInfo.length; i++) {
-                    //marker
-                    var marker = new MarkerWithLabel({
-                      map: map,
-                      position: new google.maps.LatLng(mapInfo[i][1], mapInfo[i][2]),
-                      labelContent: mapInfo[i][0],
-                      labelAnchor: new google.maps.Point(22, 0),
-                      labelClass: "labels", // the CSS class for the label
-                      labelVisible: true
-                    });
-                    
-                    markerInfo.push(marker);
-          }
-          
-          // wait 500ms so the array is fully populated
-          setTimeout(function() {
-              
-              for(var i=0; i<markerInfo.length; i++) {
-                    //set marker title
-                    markerInfo[i].setTitle(mapInfo[i][0]);
-                  
-                    //add coordinates to the outer bounds of the map
-                    bounds.extend(markerInfo[i].position);
-                  
-                    //polyline and downloadtime
-                    var polyLineColor = "#32CD32";
-                    if(i > 0) {
-                        //change color to red for bottleneck
-                        if(mapInfo[i][3] > 3) {
-                            polyLineColor = "#FF0000";
-                        }
-                        
-                        //draw polyline
-                        var routePolyLine = new google.maps.Polyline({
-                            path: [markerInfo[i-1].position, markerInfo[i].position],
-                            strokeColor: polyLineColor,
-                            strokeOpacity: 1.0,
-                            strokeWeight: 2,
-                            icons: [{
-                                icon: symbolOne,
-                                offset: '100%'
-                            }],
-                            map: map
-                        });
-                        
-                        //display downloadtime
-                        //var inBetween = google.maps.geometry.spherical.interpolate(markers[i-1].position, markers[i].position, 0.5);
-                        var startPoint = markerInfo[i-1].position;
-                        var endPoint = markerInfo[i].position;
-                        var inBetween = routePolyLine.GetPointAtDistance(startPoint.distanceFrom(endPoint)/2);
-                        
-                        var labelMarker = new google.maps.Marker({
-                            position: inBetween,  
-                            map: map,
-                            visible: false
-                        });
-                        
-                        var downloadTimeLabel = new Label();
-                        labelMarker.setPosition(inBetween);
-                        downloadTimeLabel.bindTo('position', labelMarker, 'position');
-                        downloadTimeLabel.set('text', mapInfo[i][3] + 'ms');
-                        downloadTimeLabel.setMap(map);
-                    }
-                    
-                    
-                    //countryname
-                    /*
-                    var countryNameLabel = new Label({
-                        map: map
-                    });
-                    
-                    var p = markerInfo[i].position;
-                    var latlng = new google.maps.LatLng(p.lat, p.lng);
-                    countryNameLabel.bindTo('position', markerInfo[i], 'position');
-                    //countryNameLabel.bindTo('position', latlng);
-                    countryNameLabel.bindTo('text', markerInfo[i], 'title');
-                    */
-              }
-              
-              //set the center to the bound area and fit the map accordingly
-              map.setCenter(bounds.getCenter());
-              map.fitBounds(bounds);
-          }, 500);
-    }
+#map {
+	height: 100%;
+}
 
-    google.maps.event.addDomListener(window, 'load', initMap);
-    </script>
-  </body>
+.labels {
+	color: red;
+	background-color: white;
+	font-family: "Lucida Grande", "Arial", sans-serif;
+	font-size: 10px;
+	font-weight: bold;
+	text-align: center;
+	width: 40px;
+	border: 2px solid black;
+	white-space: nowrap;
+}
+</style>
+<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBWXSsnIR_BgsQ7wZBIoxYABRtI6FGwnuU&signed_in=true"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/label.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/oms.min.js') }}"></script>
+<script>
+	//Log Info
+	var mapInfo = [ [ 'C', 12.98, 77.58, 0, '60.254.150.132', 'IN BANGALORE' ],
+	                [ 'P', 35.69, 139.75, 4, '23.32.248.26', 'JP TOKYO' ],
+					[ 'I', 35.69, 139.75, 1, '23.3.104.97', 'JP TOKYO' ],
+					[ 'C', 35.69, 139.75, 1, '118.155.230.70', 'JP TOKYO' ] ];
+	
+	var styles = [
+	              {
+	                featureType: "road",
+	                stylers: [ { visibility: "off" } ]
+	              }
+	         ];
+
+	var styledMap = new google.maps.StyledMapType(styles, {name: "Styled Map"});
+	var lineSymbol = { path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW };
+	
+	function initMap() {
+		var map = new google.maps.Map(document.getElementById('map'), {
+			zoom : 5,
+			mapTypeControlOptions: { mapTypeIds: [google.maps.MapTypeId.ROADMAP, 'map_style'] }
+		});
+		var oms = new OverlappingMarkerSpiderfier(map, {keepSpiderfied: true});
+		
+		var bounds = new google.maps.LatLngBounds();
+
+		var markerInfo = new Array();
+		var imgMarker = "";
+		var textTitle = "";
+		
+		for (i = 0; i < mapInfo.length; i++) {
+			
+			//set up image marker
+			switch(mapInfo[i][0]) {
+				case 'C':
+					imgMarker = "{{ url_for('static', filename='img/GoogleMapsMarkers/orange_MarkerC.png') }}";
+					textTitle = "Child Edge : " + mapInfo[i][4] + " (" + mapInfo[i][5] + ")";
+					break;
+				case 'P':
+					imgMarker = "{{ url_for('static', filename='img/GoogleMapsMarkers/blue_MarkerP.png') }}";
+					textTitle = "Parent Edge : " + mapInfo[i][4] + " (" + mapInfo[i][5] + ")";
+					break;
+				case 'G':
+					imgMarker = "{{ url_for('static', filename='img/GoogleMapsMarkers/yellow_MarkerG.png') }}";
+					textTitle = "Parent Edge : " + mapInfo[i][4] + " (" + mapInfo[i][5] + ")";
+				case 'I':
+					imgMarker = "{{ url_for('static', filename='img/GoogleMapsMarkers/green_MarkerI.png') }}";
+					textTitle = "Image Server : " + mapInfo[i][4] + " (" + mapInfo[i][5] + ")";
+					break;
+				default:
+					imgMarker = "{{ url_for('static', filename='img/GoogleMapsMarkers/purple_MarkerO.png') }}";
+					textTitle = "Origin : " + mapInfo[i][4] +" (" +  mapInfo[i][5] + ")";
+					break;
+			}
+			
+			var marker = new google.maps.Marker({
+  		      map: map,
+  		      position: new google.maps.LatLng(mapInfo[i][1], mapInfo[i][2]),
+  		      icon: imgMarker,
+  		      title: textTitle
+  		    });
+			
+			oms.addMarker(marker);
+			
+			//console.trace(textTitle);
+			markerInfo.push(marker);
+		}
+
+		setTimeout(function() {
+			var markers = oms.markersNearAnyOtherMarker();
+			for(var i=0; i<markers.length; i++) {
+				google.maps.event.trigger(markers[i], 'click');
+			}
+		}, 2000);
+		
+		// wait 500ms so the array is fully populated
+		setTimeout(function() {
+			for (var i = 0; i < markerInfo.length; i++) {
+				//add coordinates to the outer bounds of the map
+				bounds.extend(markerInfo[i].position);
+
+				//polyline and downloadtime
+				var polyLineColor = "#32CD32";
+				if (i > 0) {
+					//change color to red for bottleneck
+					if (mapInfo[i][3] > 3) {
+						polyLineColor = "#FF0000";
+					}
+
+					//draw polyline
+					var dataRouteCoordinates_1 = [
+							new google.maps.LatLng(mapInfo[i-1][1], mapInfo[i-1][2]),
+							new google.maps.LatLng(mapInfo[i][1], mapInfo[i][2]) ];
+					var routePolyLine = new google.maps.Polyline({
+						path : dataRouteCoordinates_1,
+						icons : [ {
+							icon : lineSymbol,
+							offset : '35%'
+						} ],
+						geodesic : true,
+						strokeColor : polyLineColor,
+						strokeOpacity : 1.0,
+						strokeWeight : 2,
+						map : map
+					});
+					
+					/*
+					//display downloadtime
+					//var inBetween = google.maps.geometry.spherical.interpolate(markers[i-1].position, markers[i].position, 0.5);
+      		    	var startPoint = markerInfo[i-1].position;
+      		    	var endPoint = markerInfo[i].position;
+      		    	var inBetween = routePolyLine.GetPointAtDistance(startPoint.distanceFrom(endPoint)/2);
+          		    
+          		    var downloadTimeLabel = new Label(inBetween);
+          	        downloadTimeLabel.bindTo('position', markerInfo[i], 'position');
+          	        downloadTimeLabel.set('text', mapInfo[i][3] + 's');
+          	        downloadTimeLabel.setMap(map);
+          	        */
+				}
+			}
+
+			//set the center to the bound area and fit the map accordingly
+			map.setCenter(bounds.getCenter());
+			map.fitBounds(bounds);
+		}, 500);
+	}
+
+	google.maps.event.addDomListener(window, 'load', initMap);
+</script>
+</head>
+<body>
+	<div id="map"></div>
+</body>
 </html>
