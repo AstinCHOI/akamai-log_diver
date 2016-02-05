@@ -31,12 +31,11 @@ html, body {
 <script type="text/javascript" src="{{ url_for('static', filename='js/label.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='js/oms.min.js') }}"></script>
 <script>
-	//Log Info
-	var mapInfo = [ [ 'C', 12.98, 77.58, 0, '60.254.150.132', 'IN BANGALORE' ],
-	                [ 'P', 35.69, 139.75, 4, '23.32.248.26', 'JP TOKYO' ],
-					[ 'I', 35.69, 139.75, 1, '23.3.104.97', 'JP TOKYO' ],
-					[ 'C', 35.69, 139.75, 1, '118.155.230.70', 'JP TOKYO' ] ];
-	
+	// var mapInfo = [ [ 'C', 12.98, 77.58, 0, '60.254.150.132', 'IN BANGALORE' ],
+	//                 [ 'P', 35.69, 139.75, 4, '23.32.248.26', 'JP TOKYO' ],
+	// 				[ 'I', 35.69, 139.75, 1, '23.3.104.97', 'JP TOKYO' ],
+	// 				[ 'C', 35.69, 139.75, 1, '118.155.230.70', 'JP TOKYO' ] ];
+	var mapInfo = {{ maps|safe }};
 	var styles = [
 	              {
 	                featureType: "road",
@@ -70,6 +69,10 @@ html, body {
 					break;
 				case 'P':
 					imgMarker = "{{ url_for('static', filename='img/GoogleMapsMarkers/blue_MarkerP.png') }}";
+					textTitle = "Parent Edge : " + mapInfo[i][4] + " (" + mapInfo[i][5] + ")";
+					break;
+				case 'E':
+					imgMarker = "{{ url_for('static', filename='img/GoogleMapsMarkers/red_MarkerE.png') }}";
 					textTitle = "Parent Edge : " + mapInfo[i][4] + " (" + mapInfo[i][5] + ")";
 					break;
 				case 'G':

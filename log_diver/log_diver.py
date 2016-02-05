@@ -19,7 +19,7 @@ def googlemap():
     google_maps = request.args.get('google_maps')
     if google_maps is None:
         google_maps = [
-           ['_', 37.3519, -121.952, '0.0.0.0', 'US CA SANTACLARA'],
+           ['E', 37.3519, -121.952, 0, '0.0.0.0', 'US SANTACLARA'],
         ];
      
     return render_template('googlemap.html', maps=google_maps)
@@ -30,6 +30,7 @@ def log_diver(data):
     REQUEST_HEADER = 1
     RESPONSE_HEADER = 2
     LOG = 3
+    IMAGE_LOG = 4
     
     # TODO: url check
 
@@ -41,8 +42,7 @@ def log_diver(data):
     request_header = ''
     response_header = ''
     logs = ''
-    google_map = ''
-    google_maps = [['_', 37.3519, -121.952, '0.0.0.0', 'US CA SANTACLARA'],]
+    summery = [['E', 37.3519, -121.952, 0, '0.0.0.0', 'US SANTACLARA'],]
     while pipe.poll() is None:
         line = pipe.stdout.readline().decode('utf-8')
 
@@ -53,19 +53,24 @@ def log_diver(data):
             status = RESPONSE_HEADER
             continue
         elif line.startswith("[Log]"):
-            logs = ''
             status = LOG
-            google_map = line.split('] [')[2][:-2].split('|')
-            try:     
-                times = line.split(' ')
-                total = int(times[4]) + int(times[5]) + int(times[6])
-                google_maps.append([google_map[0], google_map[1], google_map[2], total])
-            except IndexError:
-                pass
+            edge_log = line.split('] [')[1]
+            location_log = line.split('] [')[2][:-2].split('|')
+
+            if edge_log.startswith('image_server'):
+                edge = 'I'
+                ip_address = edge_log.split(' ')[1]
+                summery.append([edge, location_log[1], location_log[2], 0, ip_address, location_log[0]])
+                status = IMAGE_LOG
             continue
         elif line.startswith("\rProgress:"):
-            progress = line.split(' ')[2]
+            progress = line.split(' ')[1]
+            emit('log_diver', json.dumps({
+                'type': 'progress',
+                'progress': progress,
+            }))
             continue
+
 
         if status == REQUEST_HEADER:
             if line.startswith("[/Request Header]"):
@@ -85,61 +90,38 @@ def log_diver(data):
             response_header = response_header + line
         elif status == LOG:    
             if line.startswith("[/Log]"):
-                emit('log_diver', json.dumps({
-                    'type': 'log',
-                    'progress': progress,
-                    'content': logs,
-                    'google_maps': str(google_maps)
-                }))
-            else:
-                emit('log_diver', json.dumps({
-                    'type': 'progress',
-                    'progress': progress
-                }))
-
-            logs = logs + line
+                pass
+            elif line.strip() != '':
+                edge = ''
+                ip_address = ''
+                if edge_log.startswith('parent'):
+                    edge = 'P'
+                    ip_address = edge_log.split(' ')[1]
+                elif edge_log.startswith('icp'):
+                    edge = 'G'
+                    ip_address = edge_log.split(' ')[1]
+                else: # child
+                    edge = 'C'
+                    ip_address = edge_log              
+                
+                summery.append([edge, location_log[1], location_log[2], 0, ip_address, location_log[0]])
+                # times = line.split(' ')
+                # total = int(times[4]) + int(times[5]) + int(times[6])
+                # google_maps.append([google_map[0], google_map[1], google_map[2], total])
             
+                logs = logs + line
+        elif status == IMAGE_LOG:
+            if line.startswith("[/Log]"):
+                pass
+            else:
+                logs = logs + line
 
-# @socketio.on('log_diver')
-# def log_diver():
-#     url = request.args.get('url')
-    
-#     pipe = subprocess.Popen(secrets.LSG_COMMAND.format(url), \
-#         shell=True, stdout=subprocess.PIPE)
-
-#     status = 0
-#     request_header = ''
-#     response_header = ''
-#     logs = ''
-#     google_map = ''
-#     google_maps = [['US SANTACLARA', 37.3519, -121.952],]
-#     while pipe.poll() is None:
-#         line = pipe.stdout.readline().decode('utf-8')
-
-#         if line.startswith("[Request Header]"):
-#             status = REQUEST_HEADER
-#             continue
-#         elif line.startswith("[Response Header]"):
-#             status = RESPONSE_HEADER
-#             continue
-#         elif line.startswith("[LOGS]"):
-#             status = LOGS
-#             google_map = line.split('] [')[2][:-2].split('|')
-#             continue
-
-#         if status == REQUEST_HEADER:
-#             request_header = request_header + line
-#         elif status == RESPONSE_HEADER:
-#             response_header = response_header + line
-#         elif status == LOGS:
-#             if len(line) > 1:
-#                 times = line.split(' ')
-#                 total = int(times[4]) + int(times[5]) + int(times[6])
-#                 google_maps.append([google_map[0], google_map[1], google_map[2], total])
-#             logs = logs + line
-
-    # return jsonify(request_header=request_header, response_header=response_header, logs=logs, google_maps=str(google_maps))
-
+    emit('log_diver', json.dumps({
+        'type': 'log',
+        'progress': '100%',
+        'content': logs,
+        'summery': str(summery)
+    }))
 
 # import re
 # from jinja2 import evalcontextfilter, Markup, escape

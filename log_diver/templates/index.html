@@ -38,7 +38,7 @@
           <div class="row">
             <div class="col-lg-10">
               <div class="form-group">
-                <label for="URL">URL</label>
+                <label>URL</label>
                 <input type="text" name="url" class="form-control" id="url">
               </div>
             </div>
@@ -46,7 +46,7 @@
           <div class="row">
             <div class="col-lg-5">
               <div class="form-group">
-                <label for="URL">Server IP</label>
+                <label>Server IP</label>
                 <input type="text" class="form-control" list="serverip" id="server_ip" />
                 <datalist id="serverip">
                   <option value="etn1.akamai.com">ETN Test</option>
@@ -73,10 +73,11 @@
         <div class="col-lg-6">
           <label>Progress</label><br/>
         <div class="progress">
-          <div class="progress-bar progress-bar-warning progress-bar-striped active" role="progressbar" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100" style="width: 1%" id="progress_bar">
+          <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100" style="width: 1%" id="progress_bar">
           </div>
         </div>
-        <textarea readonly class="form-control" rows="5" id="progress_status"></textarea>
+        <label>Console</label><br/>
+        <textarea readonly class="form-control" rows="5" id="console"></textarea>
         </div>
       </div>
 
@@ -85,13 +86,13 @@
           <div class="col-lg-6">
             <label>Google Map</label>
             <div class="pull-right">
+              <img src="{{ url_for('static', filename='img/GoogleMapsMarkers/red_MarkerE.png') }}" height="20" width="12"> Client 
               <img src="{{ url_for('static', filename='img/GoogleMapsMarkers/orange_MarkerC.png') }}" height="20" width="12"> Child 
               <img src="{{ url_for('static', filename='img/GoogleMapsMarkers/blue_MarkerP.png') }}" height="20" width="12"> Parent 
               <img src="{{ url_for('static', filename='img/GoogleMapsMarkers/yellow_MarkerG.png') }}" height="20" width="12"> Peer 
               <img src="{{ url_for('static', filename='img/GoogleMapsMarkers/green_MarkerI.png') }}" height="20" width="12"> Image Server
             </div>
-            <iframe class="embed-responsive-item" id="googlemap" src="/googlemap" style="width:100%; height:50%;margin:0px;border:0px"></iframe>
-            <!-- <iframe class="embed-responsive-item" src=""></iframe> -->
+            <iframe class="embed-responsive-item" id="googlemap" src="/googlemap" style="width:100%; height:52%;margin:0px;border:0px"></iframe>
           </div>
           <div class="col-lg-6">
             <div class="row">
@@ -101,24 +102,12 @@
             <br/>
             <div class="row">
               <label>Summery</label><br/>
-              <table class="table table-bordered table-striped">
+              <table class="table table-bordered table-striped" id="summery_table">
                 <tr>
-                  <td>log</td>
-                  <td>location</td>
-                  <td>ip</td>
-                  <td>time</td>
-                </tr>
-                <tr>
-                  <td>r</td>
-                  <td>Seoul, KR</td>
-                  <td>127.0.0.1</td>
-                  <td>23:59</td>
-                </tr>
-                <tr>
-                  <td>f</td>
-                  <td>Tokyo, JP</td>
-                  <td>127.0.0.1</td>
-                  <td>01:24</td>
+                  <th>Edge</th>
+                  <th>IP</th>
+                  <th>Location</th>
+                  <th>Time</th>
                 </tr>
               </table>
             </div>
@@ -127,10 +116,9 @@
 
       <br/><br/>
       <label>Logs</label><br/>
-      <textarea readonly class="form-control" rows="5" id="result_logs"></textarea>
+      <textarea readonly class="form-control" rows="20" id="result_logs"></textarea>
       
       <br/><br/>
-
 
       <!-- 
       <footer class="footer">
@@ -148,39 +136,60 @@
 
       <script type="text/javascript">
         var $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
-        
+
         $("#submit").click(function() {    
           var socket = io.connect($SCRIPT_ROOT);
           socket.on('connect', function() {
-            // pass
+            console.log("socket.io connected");
           });
+
+          $('#result_request_header').text('');
+          $('#progress_bar').attr('style', 'width: 1%');
+          $('#console').text('');
+          $('#result_response_header').text('');
+          $('#result_logs').text('');
+          $("#summery_table").find("tr:not(:first)").remove();
+          $("#submit").prop("disabled", true);
+
           
           var url = $('input[name="url"]').val();
-
-          console.log("socket.io connected");
           socket.emit('log_diver', { url: url });            
-
           socket.on('log_diver', function(message) {
             var json = jQuery.parseJSON(message);
             if (json.type == "request") {
               $('#result_request_header').text(json.content);
               $('#progress_bar').attr('style', 'width:' + json.progress);
-              $('#progress_status').append('Request Done\n')
+              $('#console').append('Request Done\n')
             } else if (json.type == "response") {
               $('#result_response_header').text(json.content);
               $('#progress_bar').attr('style', 'width:' + json.progress);
-              $('#progress_status').append('Response Done\n')
+              $('#console').append('Response Done\n')
             } else if(json.type == "progress") {
                $('#progress_bar').attr('style', 'width:' + json.progress);
             } else if(json.type == "log") {
               $('#result_logs').append(json.content + '\n');
               $('#progress_bar').attr('style', 'width:' + json.progress);
-              $("#googlemap").attr("src", "/googlemap?google_maps=" + json.google_maps);
-              $('#progress_status').append('Log Done\n')
-            } 
-            // socket.on('disconnect', function() {
-            //   // pass
-            // });
+              $("#googlemap").attr("src", "/googlemap?google_maps=" + json.summery);
+
+              console.log(json.summery);
+              
+              var summery = JSON.parse(json.summery.replace(/'/g, "\""));
+              console.log(summery);
+
+              for(i = 1; i < summery.length; i++) {
+                console.log(summery[i]);
+                $("#summery_table").append(
+                '<tr><td>' + summery[i][0] + '</td><td>' + summery[i][4] + '</td><td>' + summery[i][5] + '</td><td>' + summery[i][3] + '</td></tr>');
+                }
+
+              $('#console').append('Log Done\n')
+
+              $("#submit").prop("disabled", false);
+              $('input[name=url]').focus();
+              socket.on('disconnect', function() {
+                console.log("socket.io disconnected");
+              });
+            }
           });
         });
 
@@ -207,7 +216,7 @@
           //     submit_form(e);
           //   }
           // });
-          // $('input[name=url]').focus();
+          // 
         });
       </script>
     </body>
