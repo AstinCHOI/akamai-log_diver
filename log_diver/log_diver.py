@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, url_for, jsonify, stream_with_context, Response
 from flask_socketio import send, emit, SocketIO
+from urllib.parse import urlparse, urljoin
 
 import subprocess, logging, json
 import secrets
@@ -32,7 +33,9 @@ def log_diver(data):
     LOG = 3
     IMAGE_LOG = 4
     
-    # TODO: url check
+    url_obj = urlparse(data['url'])
+    hostname = url_obj.hostname
+    others = ''
 
     pipe = subprocess.Popen(secrets.LSG_COMMAND.format(data['url']), \
         shell=True, stdout=subprocess.PIPE)
