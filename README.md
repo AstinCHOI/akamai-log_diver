@@ -1,5 +1,5 @@
 To-do List
-- Deginate Server IP
+- Configure Server IP
 - Log viewer redirection (separate Image server log)
 - Log console view
 - correct progress
