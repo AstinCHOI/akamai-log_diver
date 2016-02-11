@@ -155,7 +155,7 @@
           
           var url = $('input[name="url"]').val();
           var server_ip = $('input[name="server_ip"]').val();
-          socket.emit('log_diver', { "url": url,
+          socket.emit('log_diver', { 'url': url,
             'server_ip': server_ip });
 
           socket.on('log_diver', function(message) {

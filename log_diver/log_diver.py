@@ -39,12 +39,11 @@ def log_diver(data):
     url_obj = urlparse(data['url'])
     hostname = url_obj.hostname
     if not hostname:
-        # TODO: EMIT with error message / submit button enable
+        # TODO: EMIT with error message / submit button enable / socket close
         return
 
     server_ip = data['server_ip']
     if server_ip:
-        is_server_ip_akamaized = True
         try:
             ipaddress.ip_address(server_ip)
             socket.gethostbyname('a' + server_ip.replace('.','-') +'.deploy.akamaitechnologies.com')
@@ -52,11 +51,12 @@ def log_diver(data):
             try:
                 socket.gethostbyname('a' + socket.gethostbyname(server_ip).replace('.','-') +'.deploy.akamaitechnologies.com')
             except socket.gaierror:
-                is_server_ip_akamaized = False
+                # TODO: EMIT with error message / submit button enable / socket close
+                return
         except socket.gaierror:
-            is_server_ip_akamaized = False
-
-    if is_server_ip_akamaized:
+            # TODO: EMIT with error message / submit button enable / socket close
+            return
+               
         new_url = '{}://{}{}{}{}{}'.format(url_obj.scheme, server_ip, url_obj.path, url_obj.params, url_obj.query, url_obj.fragment)
         pipe = subprocess.Popen(secrets.LSG_COMMAND_WITH_HOST.format(new_url, hostname), \
             shell=True, stdout=subprocess.PIPE)
