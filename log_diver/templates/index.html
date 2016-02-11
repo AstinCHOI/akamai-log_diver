@@ -47,7 +47,7 @@
             <div class="col-lg-5">
               <div class="form-group">
                 <label>Server IP</label>
-                <input type="text" class="form-control" list="serverip" id="server_ip" />
+                <input type="text" name="server_ip" class="form-control" list="serverip" id="server_ip" />
                 <datalist id="serverip">
                   <option value="etn1.akamai.com">ETN Test</option>
                   <option value="a1.g.akamai-staging.net">ESN map</option>
@@ -79,6 +79,7 @@
         <label>Console</label><br/>
         <textarea readonly class="form-control" rows="5" id="console"></textarea>
         </div>
+        <br/>
       </div>
 
       <div class="container">
@@ -153,7 +154,10 @@
 
           
           var url = $('input[name="url"]').val();
-          socket.emit('log_diver', { url: url });            
+          var server_ip = $('input[name="server_ip"]').val();
+          socket.emit('log_diver', { "url": url,
+            'server_ip': server_ip });
+
           socket.on('log_diver', function(message) {
             var json = jQuery.parseJSON(message);
             if (json.type == "request") {

@@ -2,13 +2,14 @@ from flask import Flask, render_template, request, url_for, jsonify, stream_with
 from flask_socketio import send, emit, SocketIO
 from urllib.parse import urlparse, urljoin
 
-import subprocess, logging, json
+import subprocess, logging, json, ipaddress, socket
 import secrets
 
 
 application = Flask(__name__)
 application.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(application, ping_timeout=300, ping_interval=300)
+
 
 @application.route('/')
 def index():
@@ -22,10 +23,12 @@ def googlemap():
         google_maps = [
            ['E', 37.3519, -121.952, 0, '0.0.0.0', 'US SANTACLARA'],
         ];
-     
+    
     return render_template('googlemap.html', maps=google_maps)
 
 
+# TODO: Code refactoring
+# TODO: change + to .format
 @socketio.on('log_diver')
 def log_diver(data):
     REQUEST_HEADER = 1
@@ -35,10 +38,32 @@ def log_diver(data):
     
     url_obj = urlparse(data['url'])
     hostname = url_obj.hostname
-    others = ''
+    if not hostname:
+        # TODO: EMIT with error message / submit button enable
+        return
 
-    pipe = subprocess.Popen(secrets.LSG_COMMAND.format(data['url']), \
-        shell=True, stdout=subprocess.PIPE)
+    server_ip = data['server_ip']
+    if server_ip:
+        is_server_ip_akamaized = True
+        try:
+            ipaddress.ip_address(server_ip)
+            socket.gethostbyname('a' + server_ip.replace('.','-') +'.deploy.akamaitechnologies.com')
+        except ValueError:
+            try:
+                socket.gethostbyname('a' + socket.gethostbyname(server_ip).replace('.','-') +'.deploy.akamaitechnologies.com')
+            except socket.gaierror:
+                is_server_ip_akamaized = False
+        except socket.gaierror:
+            is_server_ip_akamaized = False
+
+    if is_server_ip_akamaized:
+        new_url = '{}://{}{}{}{}{}'.format(url_obj.scheme, server_ip, url_obj.path, url_obj.params, url_obj.query, url_obj.fragment)
+        pipe = subprocess.Popen(secrets.LSG_COMMAND_WITH_HOST.format(new_url, hostname), \
+            shell=True, stdout=subprocess.PIPE)
+    else:
+        pipe = subprocess.Popen(secrets.LSG_COMMAND.format(data['url']), \
+            shell=True, stdout=subprocess.PIPE)
+
 
     status = 0
     progress = ''
@@ -74,7 +99,6 @@ def log_diver(data):
             }))
             continue
 
-
         if status == REQUEST_HEADER:
             if line.startswith("[/Request Header]"):
                 emit('log_diver', json.dumps({
@@ -108,6 +132,7 @@ def log_diver(data):
                     ip_address = edge_log              
                 
                 summery.append([edge, location_log[1], location_log[2], 0, ip_address, location_log[0]])
+                # TODO: Log Time
                 # times = line.split(' ')
                 # total = int(times[4]) + int(times[5]) + int(times[6])
                 # google_maps.append([google_map[0], google_map[1], google_map[2], total])
