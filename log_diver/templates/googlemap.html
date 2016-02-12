@@ -119,7 +119,7 @@ html, body {
 		}
 
 		setTimeout(function() {
-			console.trace("initial");
+			// console.trace("initial");
 			var markers = oms.markersNearAnyOtherMarker();
 			for (var i = 0; i < markers.length; i++) {
 				google.maps.event.trigger(markers[i], 'click');

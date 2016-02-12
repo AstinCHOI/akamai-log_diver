@@ -45,11 +45,14 @@ def log_diver(data):
     server_ip = data['server_ip']
     if server_ip:
         try:
+            # CASE 1: IP Address
             ipaddress.ip_address(server_ip)
             socket.gethostbyname('a' + server_ip.replace('.','-') +'.deploy.akamaitechnologies.com')
         except ValueError:
             try:
-                socket.gethostbyname('a' + socket.gethostbyname(server_ip).replace('.','-') +'.deploy.akamaitechnologies.com')
+                # CASE 2: Hostname
+                server_ip = socket.gethostbyname(server_ip)
+                socket.gethostbyname('a' + server_ip.replace('.','-') +'.deploy.akamaitechnologies.com')
             except socket.gaierror:
                 # TODO: EMIT with error message / submit button enable / socket close
                 return

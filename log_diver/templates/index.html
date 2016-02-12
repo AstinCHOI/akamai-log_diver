@@ -174,14 +174,10 @@
               $('#result_logs').append(json.content + '\n');
               $('#progress_bar').attr('style', 'width:' + json.progress);
               $("#googlemap").attr("src", "/googlemap?google_maps=" + json.summery);
-
-              console.log(json.summery);
               
               var summery = JSON.parse(json.summery.replace(/'/g, "\""));
-              console.log(summery);
 
               for(i = 1; i < summery.length; i++) {
-                console.log(summery[i]);
                 $("#summery_table").append(
                 '<tr><td>' + summery[i][0] + '</td><td>' + summery[i][4] + '</td><td>' + summery[i][5] + '</td><td>' + summery[i][3] + '</td></tr>');
                 }
