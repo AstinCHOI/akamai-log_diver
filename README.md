@@ -1,3 +1,5 @@
+in Loas.. I'm trying to commit anything during trip.
+
 To-do List
 - Configure Server IP
 - Log viewer redirection (separate Image server log)
