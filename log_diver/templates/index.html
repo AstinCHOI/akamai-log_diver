@@ -136,6 +136,16 @@
       <script src="http://getbootstrap.com/assets/js/ie10-viewport-bug-workaround.js"></script>
 
       <script type="text/javascript">
+        function init() {
+          $('#result_request_header').text('');
+          $('#progress_bar').attr('style', 'width: 1%');
+          $('#console').text('');
+          $('#result_response_header').text('');
+          $('#result_logs').text('');
+          $("#summery_table").find("tr:not(:first)").remove();
+          $("#submit").prop("disabled", true);
+        }
+
         var $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
 
         $("#submit").click(function() {    
@@ -144,14 +154,7 @@
             console.log("socket.io connected");
           });
 
-          $('#result_request_header').text('');
-          $('#progress_bar').attr('style', 'width: 1%');
-          $('#console').text('');
-          $('#result_response_header').text('');
-          $('#result_logs').text('');
-          $("#summery_table").find("tr:not(:first)").remove();
-          $("#submit").prop("disabled", true);
-
+          init();
           
           var url = $('input[name="url"]').val();
           var server_ip = $('input[name="server_ip"]').val();
@@ -169,7 +172,14 @@
               $('#progress_bar').attr('style', 'width:' + json.progress);
               $('#console').append('Response Done\n')
             } else if(json.type == "progress") {
-               $('#progress_bar').attr('style', 'width:' + json.progress);
+                $('#progress_bar').attr('style', 'width:' + json.progress);
+            } else if(json.type == "error") {
+                init();
+                $('#console').append(json.message);
+                $("#submit").prop("disabled", false);
+                socket.on('disconnect', function() {
+                  console.log("socket.io disconnected");
+                });
             } else if(json.type == "log") {
               $('#result_logs').append(json.content + '\n');
               $('#progress_bar').attr('style', 'width:' + json.progress);

@@ -40,6 +40,10 @@ def log_diver(data):
     hostname = url_obj.hostname
     if not hostname:
         # TODO: EMIT with error message / submit button enable / socket close
+        emit('log_diver', json.dumps({
+            'type': 'error',
+            'message': 'Invalid Hostname.',
+        }))
         return
 
     server_ip = data['server_ip']
@@ -54,10 +58,16 @@ def log_diver(data):
                 server_ip = socket.gethostbyname(server_ip)
                 socket.gethostbyname('a' + server_ip.replace('.','-') +'.deploy.akamaitechnologies.com')
             except socket.gaierror:
-                # TODO: EMIT with error message / submit button enable / socket close
+                emit('log_diver', json.dumps({
+                    'type': 'error',
+                    'message': 'This hostname or ip isn\'t akamaized.',
+                }))
                 return
         except socket.gaierror:
-            # TODO: EMIT with error message / submit button enable / socket close
+            emit('log_diver', json.dumps({
+                'type': 'error',
+                'message': 'Invalid IP.',
+            }))
             return
                
         new_url = '{}://{}{}{}{}{}'.format(url_obj.scheme, server_ip, url_obj.path, url_obj.params, url_obj.query, url_obj.fragment)

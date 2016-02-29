@@ -1,5 +1,3 @@
-in Loas.. I'm trying to commit anything during trip.
-
 To-do List
 - Configure Server IP
 - Log viewer redirection (separate Image server log)
@@ -11,5 +9,6 @@ To-do List
 - Check akamaized host
 - google map entire view
 - Adapt Host headers' text
+- devide it to functions
 
 - change to geventwebsocket
