@@ -35,28 +35,39 @@ def log_diver(data):
     RESPONSE_HEADER = 2
     LOG = 3
     IMAGE_LOG = 4
-    
-    url_obj = urlparse(data['url'])
+
+    url = data['url']
+    server_ip = data['server_ip']
+
+    url_obj = urlparse(url)
     hostname = url_obj.hostname
+
     if not hostname:
-        # TODO: EMIT with error message / submit button enable / socket close
         emit('log_diver', json.dumps({
             'type': 'error',
-            'message': 'Invalid Hostname.',
+            'message': 'Invalid URL or input http(s)://',
         }))
         return
 
-    server_ip = data['server_ip']
+    try:
+        ipaddress.ip_address(hostname)
+        emit('log_diver', json.dumps({
+            'type': 'error',
+            'message': 'Cannot input IP in URL',
+        }))
+        return
+    except ValueError:
+        pass
+    
     if server_ip:
         try:
-            # CASE 1: IP Address
+            # IP Check to [ValueError]
             ipaddress.ip_address(server_ip)
-            socket.gethostbyname('a' + server_ip.replace('.','-') +'.deploy.akamaitechnologies.com')
+            # Akamaized IP Check to [socket.gaierror]
+            socket.gethostbyname('a' + server_ip.replace('.','-') +'.deploy.akamaitechnologies.com') 
         except ValueError:
             try:
-                # CASE 2: Hostname
-                server_ip = socket.gethostbyname(server_ip)
-                socket.gethostbyname('a' + server_ip.replace('.','-') +'.deploy.akamaitechnologies.com')
+                socket.gethostbyname('a' + socket.gethostbyname(server_ip).replace('.','-') +'.deploy.akamaitechnologies.com')
             except socket.gaierror:
                 emit('log_diver', json.dumps({
                     'type': 'error',
@@ -74,9 +85,17 @@ def log_diver(data):
         pipe = subprocess.Popen(secrets.LSG_COMMAND_WITH_HOST.format(new_url, hostname), \
             shell=True, stdout=subprocess.PIPE)
     else:
-        pipe = subprocess.Popen(secrets.LSG_COMMAND.format(data['url']), \
-            shell=True, stdout=subprocess.PIPE)
+        try:
+            socket.gethostbyname('a' + socket.gethostbyname(hostname).replace('.','-') +'.deploy.akamaitechnologies.com')
+        except socket.gaierror:
+            emit('log_diver', json.dumps({
+                'type': 'error',
+                'message': 'Your hostname isn\'t akamaized, you can input akamaized IP or Hostname in \"Server IP\" textbox',
+            }))
+            return
 
+        pipe = subprocess.Popen(secrets.LSG_COMMAND.format(url), \
+            shell=True, stdout=subprocess.PIPE)
 
     status = 0
     progress = ''

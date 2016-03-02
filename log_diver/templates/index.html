@@ -47,14 +47,7 @@
             <div class="col-lg-5">
               <div class="form-group">
                 <label>Server IP</label>
-                <input type="text" name="server_ip" class="form-control" list="serverip" id="server_ip" />
-                <datalist id="serverip">
-                  <option value="etn1.akamai.com">ETN Test</option>
-                  <option value="a1.g.akamai-staging.net">ESN map</option>
-                  <option value="e1.a.akamaiedge-staging.net">Secure ESN map</option>
-                  <option value="a1.g.akamai.net">Prod map</option>
-                  <option value="e1.a.akamaiedge.net">Prod Secure map</option>
-                </datalist>
+                <input type="text" name="server_ip" class="form-control" id="server_ip" />
               </div>
             </div>
           </div>
@@ -128,16 +121,17 @@
         </div>
       </footer> 
       -->
-            
+
       <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
       <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
-      <script type="text/javascript" src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+      <script type="text/javascript" src="{{ url_for('static', filename='js/socket.io-1.4.5.js') }}"></script>
       <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
       <script src="http://getbootstrap.com/assets/js/ie10-viewport-bug-workaround.js"></script>
 
       <script type="text/javascript">
         function init() {
           $('#result_request_header').text('');
+          $('#progress_bar').removeClass('progress-bar-warning');
           $('#progress_bar').attr('style', 'width: 1%');
           $('#console').text('');
           $('#result_response_header').text('');
@@ -156,9 +150,9 @@
 
           init();
           
-          var url = $('input[name="url"]').val();
-          var server_ip = $('input[name="server_ip"]').val();
-          socket.emit('log_diver', { 'url': url,
+          var url = $('#url').val();
+          var server_ip = $('#server_ip').val();
+          socket.emit('log_diver', { 'url': encodeURI(url),
             'server_ip': server_ip });
 
           socket.on('log_diver', function(message) {
@@ -175,7 +169,10 @@
                 $('#progress_bar').attr('style', 'width:' + json.progress);
             } else if(json.type == "error") {
                 init();
+                $('#progress_bar').addClass('progress-bar-warning');
+                $('#progress_bar').attr('style', 'width: 100%');
                 $('#console').append(json.message);
+                $('#url').focus().select();
                 $("#submit").prop("disabled", false);
                 socket.on('disconnect', function() {
                   console.log("socket.io disconnected");
@@ -195,7 +192,7 @@
               $('#console').append('Log Done\n')
 
               $("#submit").prop("disabled", false);
-              $('input[name=url]').focus();
+              $('#url').focus();
               socket.on('disconnect', function() {
                 console.log("socket.io disconnected");
               });
