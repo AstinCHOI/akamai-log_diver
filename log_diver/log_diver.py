@@ -102,6 +102,7 @@ def log_diver(data):
     request_header = ''
     response_header = ''
     logs = ''
+    others = ''
     summery = [['E', 37.3519, -121.952, 0, '0.0.0.0', 'US SANTACLARA'],]
     while pipe.poll() is None:
         line = pipe.stdout.readline().decode('utf-8')
@@ -122,14 +123,15 @@ def log_diver(data):
                 ip_address = edge_log.split(' ')[1]
                 summery.append([edge, location_log[1], location_log[2], 0, ip_address, location_log[0]])
                 status = IMAGE_LOG
+                others = "Image Logs"
             continue
-        elif line.startswith("\rProgress:"):
-            progress = line.split(' ')[1]
-            emit('log_diver', json.dumps({
-                'type': 'progress',
-                'progress': progress,
-            }))
-            continue
+        # elif line.startswith("\rProgress:"):
+        #     progress = line.split(' ')[1]
+        #     emit('log_diver', json.dumps({
+        #         'type': 'progress',
+        #         'progress': progress,
+        #     }))
+        #     continue
 
         if status == REQUEST_HEADER:
             if line.startswith("[/Request Header]"):
@@ -174,12 +176,13 @@ def log_diver(data):
             if line.startswith("[/Log]"):
                 pass
             else:
-                logs = logs + line
+                others = others + line
 
     emit('log_diver', json.dumps({
         'type': 'log',
         'progress': '100%',
         'content': logs,
+        'others': others,
         'summery': str(summery)
     }))
 
