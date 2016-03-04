@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, url_for, jsonify, stream_with_context, Response
-from flask_socketio import send, emit, SocketIO
+from flask_socketio import send, emit, disconnect, SocketIO
 from urllib.parse import urlparse, urljoin
 
 import subprocess, logging, json, ipaddress, socket
@@ -27,8 +27,10 @@ def googlemap():
     return render_template('googlemap.html', maps=google_maps)
 
 
-# TODO: Code refactoring
-# TODO: change + to .format
+def percentinize_(progress):
+    return '{}%'.format(progress)
+
+
 @socketio.on('log_diver')
 def log_diver(data):
     REQUEST_HEADER = 1
@@ -47,6 +49,7 @@ def log_diver(data):
             'type': 'error',
             'message': 'Invalid URL or input http(s)://',
         }))
+        disconnect();
         return
 
     try:
@@ -55,6 +58,7 @@ def log_diver(data):
             'type': 'error',
             'message': 'Cannot input IP in URL',
         }))
+        disconnect();
         return
     except ValueError:
         pass
@@ -73,12 +77,14 @@ def log_diver(data):
                     'type': 'error',
                     'message': 'This hostname or ip isn\'t akamaized.',
                 }))
+                disconnect();
                 return
         except socket.gaierror:
             emit('log_diver', json.dumps({
                 'type': 'error',
                 'message': 'Invalid IP.',
             }))
+            disconnect();
             return
                
         new_url = '{}://{}{}{}{}{}'.format(url_obj.scheme, server_ip, url_obj.path, url_obj.params, url_obj.query, url_obj.fragment)
@@ -92,6 +98,7 @@ def log_diver(data):
                 'type': 'error',
                 'message': 'Your hostname isn\'t akamaized, you can input akamaized IP or Hostname in \"Server IP\" textbox',
             }))
+            disconnect();
             return
 
         pipe = subprocess.Popen(secrets.LSG_COMMAND.format(url), \
@@ -185,6 +192,8 @@ def log_diver(data):
         'others': others,
         'summery': str(summery)
     }))
+
+    disconnect();
 
 # import re
 # from jinja2 import evalcontextfilter, Markup, escape
