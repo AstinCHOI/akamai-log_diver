@@ -77,9 +77,9 @@ html, body {
 
 			//set up image marker
 			switch(mapInfo[i][0]) {
-				case 'E':
-					imgMarker = "{{ url_for('static', filename='img/GoogleMapsMarkers/red_MarkerE.png') }}";
-					textTitle = "Client : " + mapInfo[i][4] + " (" + mapInfo[i][5] + ")";
+				case 'U':
+					imgMarker = "{{ url_for('static', filename='img/GoogleMapsMarkers/red_MarkerU.png') }}";
+					textTitle = "User : " + mapInfo[i][4] + " (" + mapInfo[i][5] + ")";
 					break;
 				case 'C':
 					imgMarker = "{{ url_for('static', filename='img/GoogleMapsMarkers/orange_MarkerC.png') }}";

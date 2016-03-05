@@ -21,7 +21,7 @@ def googlemap():
     google_maps = request.args.get('google_maps')
     if google_maps is None:
         google_maps = [
-           ['E', 37.3519, -121.952, 0, '0.0.0.0', 'US SANTACLARA'],
+           ['U', 37.3519, -121.952, 0, '0.0.0.0', 'US SANTACLARA'],
         ];
     
     return render_template('googlemap.html', maps=google_maps)
@@ -110,10 +110,10 @@ def log_diver(data):
     response_header = ''
     logs = ''
     others = ''
-    summery = [['E', 37.3519, -121.952, 0, '0.0.0.0', 'US SANTACLARA'],]
+    summery = [['U', 37.3519, -121.952, 0, '0.0.0.0', 'US SANTACLARA'],]
     while pipe.poll() is None:
         line = pipe.stdout.readline().decode('utf-8')
-
+        print(line)
         if line.startswith("[Request Header]"):
             status = REQUEST_HEADER
             continue
