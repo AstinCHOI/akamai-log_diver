@@ -4,6 +4,7 @@ To-do List
 - google map entire view
 - devide it to functions (refectoring)
 - change to geventwebsocket
+- README <- description
 
 Done
 - URL Name regex Check (http://, https://)
