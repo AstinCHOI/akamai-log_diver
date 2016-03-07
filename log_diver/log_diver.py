@@ -71,7 +71,8 @@ def log_diver(data):
             socket.gethostbyname('a' + server_ip.replace('.','-') +'.deploy.akamaitechnologies.com') 
         except ValueError:
             try:
-                socket.gethostbyname('a' + socket.gethostbyname(server_ip).replace('.','-') +'.deploy.akamaitechnologies.com')
+                server_ip = socket.gethostbyname(server_ip)
+                socket.gethostbyname('a' + server_ip.replace('.','-') +'.deploy.akamaitechnologies.com')
             except socket.gaierror:
                 emit('log_diver', json.dumps({
                     'type': 'error',
@@ -113,7 +114,6 @@ def log_diver(data):
     summery = [['U', 37.3519, -121.952, 0, '0.0.0.0', 'US SANTACLARA'],]
     while pipe.poll() is None:
         line = pipe.stdout.readline().decode('utf-8')
-        print(line)
         if line.startswith("[Request Header]"):
             status = REQUEST_HEADER
             continue

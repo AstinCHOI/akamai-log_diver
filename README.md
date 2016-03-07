@@ -1,6 +1,5 @@
 To-do List
 - summery table time
-- server IP selection
 - google map entire view
 - devide it to functions (refectoring)
 - change to geventwebsocket
@@ -14,3 +13,4 @@ Done
 - Log console view
 - correct progress
 - Adapt Host headers' text
+- server IP selection
