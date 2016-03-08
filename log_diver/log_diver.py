@@ -114,6 +114,7 @@ def log_diver(data):
     summery = [['U', 37.3519, -121.952, 0, '0.0.0.0', 'US SANTACLARA'],]
     while pipe.poll() is None:
         line = pipe.stdout.readline().decode('utf-8')
+        
         if line.startswith("[Request Header]"):
             status = REQUEST_HEADER
             continue
