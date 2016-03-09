@@ -5,8 +5,6 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>SD Tool: Log Diver</title>
 
-        <!-- <link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}"> -->
-
         <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
         <link href="http://getbootstrap.com/assets/css/ie10-viewport-bug-workaround.css" rel="stylesheet">
 
@@ -18,26 +16,8 @@
         <!-- Optional theme -->
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
 
-        <!-- jquery ui -->
         <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
-        <style>
-          .custom-combobox {
-            position: relative;
-            display: inline-block;
-          }
-          .custom-combobox-toggle {
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            margin-left: -1px;
-            padding: 0;
-          }
-          .custom-combobox-input {
-            margin: 0;
-            padding: 5px 10px;
-            background: white;
-          }
-        </style>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/jquery-ui-custom-combobox.css') }}">        
     </head>
     <body>
       <nav class="navbar navbar-inverse navbar-fixed-top">
@@ -147,27 +127,27 @@
               <a href="#" class="pull-right hidden_links" onclick="document.getElementById('log_viewer_form').submit();">Log Viewer</a>
               <span class="hidden_controls">
                 <textarea class="result_logs" name="loglines"></textarea>
-                <input type="checkbox" name="G" VALUE="G" CHECKED>
-                <input type="checkbox" name="F" VALUE="F" CHECKED>
-                <input type="checkbox" name="S" VALUE="S" CHECKED>
-                <input type="checkbox" name="R" VALUE="R" CHECKED>
-                <input type="checkbox" name="f" VALUE="f" CHECKED>
-                <input type="checkbox" name="r" VALUE="r" CHECKED>
-                <input type="checkbox" name="type" VALUE="type" CHECKED>
-                <input type="checkbox" name="time" VALUE="time" CHECKED>
-                <input type="checkbox" name="requestid" VALUE="requestid" CHECKED>
-                <input type="checkbox" name="clientip" VALUE="clientip" CHECKED>
-                <input type="checkbox" name="arl" VALUE="arl" CHECKED>
-                <input type="checkbox" name="method" VALUE="method" CHECKED>
-                <input type="checkbox" name="status" VALUE="status" CHECKED>
-                <input type="checkbox" name="contentlength" VALUE="contentlength" CHECKED>
-                <input type="checkbox" name="totalsizeserved" VALUE="totalsizeserved" CHECKED>
-                <input type="checkbox" name="originresp" VALUE="originresp" CHECKED>
-                <input type="checkbox" name="transfer" VALUE="transfer" CHECKED>
-                <input type="checkbox" name="totaltime" VALUE="totaltime" CHECKED>
-                <input type="checkbox" name="error" VALUE="error" CHECKED>
-                <input type="checkbox" name="forwardip" VALUE="forwardip" CHECKED>
-                <input type="checkbox" name="misc" VALUE="misc" CHECKED>
+                <input type="checkbox" name="G" value="G" chcked>
+                <input type="checkbox" name="F" value="F" chcked>
+                <input type="checkbox" name="S" value="S" chcked>
+                <input type="checkbox" name="R" value="R" chcked>
+                <input type="checkbox" name="f" value="f" chcked>
+                <input type="checkbox" name="r" value="r" chcked>
+                <input type="checkbox" name="type" value="type" chcked>
+                <input type="checkbox" name="time" value="time" chcked>
+                <input type="checkbox" name="requestid" value="requestid" chcked>
+                <input type="checkbox" name="clientip" value="clientip" chcked>
+                <input type="checkbox" name="arl" value="arl" chcked>
+                <input type="checkbox" name="method" value="method" chcked>
+                <input type="checkbox" name="status" value="status" chcked>
+                <input type="checkbox" name="contentlength" value="contentlength" chcked>
+                <input type="checkbox" name="totalsizeserved" value="totalsizeserved" chcked>
+                <input type="checkbox" name="originresp" value="originresp" chcked>
+                <input type="checkbox" name="transfer" value="transfer" chcked>
+                <input type="checkbox" name="totaltime" value="totaltime" chcked>
+                <input type="checkbox" name="error" value="error" chcked>
+                <input type="checkbox" name="forwardip" value="forwardip" chcked>
+                <input type="checkbox" name="misc" value="misc" chcked>
               </span>
           </form>
           <form method="POST" action="http://lp.engr.akamai.com/lp.cgi" target="_blank" id="log_parser_form" style="display: inline;">
@@ -193,13 +173,16 @@
       <script type="text/javascript" src="{{ url_for('static', filename='js/socket.io-1.4.5.js') }}"></script>
       <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
       <script src="http://getbootstrap.com/assets/js/ie10-viewport-bug-workaround.js"></script>
+
       <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+      <script src="{{ url_for('static', filename='js/jquery-ui-custom-combobox.js') }}"></script>
 
       <script type="text/javascript">
+        $("#combobox").combobox();
+        
         $(".hidden_links").hide();
-
         $(".hidden_controls").hide();
-
+        
         $("#submit").click(function() {    
           function init() {
             $('#result_request_header').text('');
@@ -301,141 +284,6 @@
           // });
           // 
         });
-
-        (function( $ ) {
-    $.widget( "custom.combobox", {
-      _create: function() {
-        this.wrapper = $( "<span>" )
-          .addClass( "custom-combobox" )
-          .insertAfter( this.element );
- 
-        this.element.hide();
-        this._createAutocomplete();
-        this._createShowAllButton();
-      },
- 
-      _createAutocomplete: function() {
-        var selected = this.element.children( ":selected" ),
-          value = selected.text() ? selected.val() : "";
-        
-        this.input = $( "<input id='server_ip'>" )
-          .appendTo( this.wrapper )
-          .val( value )
-          .attr( "title", "" )
-          .addClass( "custom-combobox-input ui-widget ui-widget-content ui-state-default ui-corner-left" )
-          .autocomplete({
-            delay: 0,
-            minLength: 0,
-            source: $.proxy( this, "_source" )
-          })
-          // .tooltip({
-          //   tooltipClass: "ui-state-highlight"
-          // });
- 
-        this._on( this.input, {
-          autocompleteselect: function( event, ui ) {
-            ui.item.option.selected = true;
-            this._trigger( "select", event, {
-              item: ui.item.option
-            });
-          },
- 
-          // autocompletechange: "_removeIfInvalid"
-        });
-      },
- 
-      _createShowAllButton: function() {
-        var input = this.input,
-          wasOpen = false;
- 
-        $( "<a>" )
-          .attr( "tabIndex", -1 )
-          // .attr( "title", "Show All Items" )
-          .tooltip()
-          .appendTo( this.wrapper )
-          .button({
-            icons: {
-              primary: "ui-icon-triangle-1-s"
-            },
-            text: false
-          })
-          .removeClass( "ui-corner-all" )
-          .addClass( "custom-combobox-toggle ui-corner-right" )
-          .mousedown(function() {
-            wasOpen = input.autocomplete( "widget" ).is( ":visible" );
-          })
-          .click(function() {
-            input.focus();
- 
-            // Close if already visible
-            if ( wasOpen ) {
-              return;
-            }
- 
-            // Pass empty string as value to search for, displaying all results
-            input.autocomplete( "search", "" );
-          });
-      },
- 
-      _source: function( request, response ) {
-        var matcher = new RegExp( $.ui.autocomplete.escapeRegex(request.term), "i" );
-        response( this.element.children( "option" ).map(function() {
-          var text = $( this ).text();
-          var val = $( this ).val();
-          if ( this.value && ( !request.term || matcher.test(text) ) )
-            return {
-              label: text,
-              value: val,
-              option: this
-            };
-        }) );
-      },
- 
-      // _removeIfInvalid: function( event, ui ) {
- 
-      //   // Selected an item, nothing to do
-      //   if ( ui.item ) {
-      //     return;
-      //   }
- 
-      //   // Search for a match (case-insensitive)
-      //   var value = this.input.val(),
-      //     valueLowerCase = value.toLowerCase(),
-      //     valid = false;
-      //   this.element.children( "option" ).each(function() {
-      //     if ( $( this ).text().toLowerCase() === valueLowerCase ) {
-      //       this.selected = valid = true;
-      //       return false;
-      //     }
-      //   });
- 
-      //   // Found a match, nothing to do
-      //   if ( valid ) {
-      //     return;
-      //   }
- 
-      //   // Remove invalid value
-      //   this.input
-      //     .val( "" )
-      //     .attr( "title", value + " didn't match any item" )
-      //     .tooltip( "open" );
-      //   this.element.val( "" );
-      //   this._delay(function() {
-      //     this.input.tooltip( "close" ).attr( "title", "" );
-      //   }, 2500 );
-      //   this.input.autocomplete( "instance" ).term = "";
-      // },
- 
-      _destroy: function() {
-        this.wrapper.remove();
-        this.element.show();
-      }
-    });
-  })( jQuery );
- 
-  $(function() {
-    $("#combobox").combobox();
-  });
       </script>
     </body>
 </html>
