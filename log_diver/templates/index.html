@@ -109,9 +109,9 @@
           <br/>
           <div class="row">
             <label>Summery</label><br/>
-            <table class="table table-bordered table-striped" id="summery_table">
+            <table class="table table-bordered table-striped table-condensed" id="summery_table">
               <tr>
-                <th>Edge</th>
+                <th width="50">Edge</th>
                 <th>IP</th>
                 <th>Location</th>
                 <th>Time</th>
@@ -156,7 +156,7 @@
           <textarea readonly class="form-control result_logs" rows="10" name="loglines"></textarea>
           <br/>
           <label>Others</label><br/>
-          <textarea readonly class="form-control" rows="10" id="result_others"></textarea>
+          <textarea readonly class="form-control result_logs" rows="10" id="result_others"></textarea>
         </div>
       </div>
       <!-- 
@@ -183,14 +183,13 @@
         $(".hidden_controls").hide();
         
         $("#submit").click(function() { 
-          // socket.on('disconnect', function() {
-          //   console.log("socket.io disconnected");
-          // });
-          
           // socket.on('connect', function() {
           //   console.log("socket.io connected");
           // });
 
+          // socket.on('disconnect', function() {
+          //   console.log("socket.io disconnected");
+          // });
           var progress = 1;
           var progressVar = setInterval(progressTimer, 1000);
           var progressLogdiver = 0;
@@ -271,7 +270,7 @@
 
               $("#submit").prop("disabled", false);
               $('#url').focus();
-              // socket.disconnect();
+              socket.disconnect();
             }
           });
         });

@@ -110,6 +110,7 @@ def log_diver(data):
     request_header = ''
     response_header = ''
     logs = ''
+    origin = []
     others = ''
     summery = [['U', 37.3519, -121.952, 0, '0.0.0.0', 'US SANTACLARA'],]
     while pipe.poll() is None:
@@ -131,7 +132,12 @@ def log_diver(data):
                 ip_address = edge_log.split(' ')[1]
                 summery.append([edge, location_log[1], location_log[2], 0, ip_address, location_log[0]])
                 status = IMAGE_LOG
-                others = "Image Logs"
+                others = "[Image Logs]\n"
+            elif edge_log.startswith('origin'):
+                edge = 'O'
+                ip_address = edge_log.split(' ')[1]
+                origin = [edge, location_log[1], location_log[2], '-', ip_address, location_log[0]]
+                # status = ORIGIN
             continue
         elif line.startswith("[Console]"):
             emit('log_diver', json.dumps({
@@ -189,6 +195,9 @@ def log_diver(data):
                 pass
             else:
                 others = others + line
+
+    if origin:
+        summery.append(origin)
 
     emit('log_diver', json.dumps({
         'type': 'log',
