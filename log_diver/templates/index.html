@@ -13,6 +13,7 @@
 
         <!-- Latest compiled and minified CSS -->
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+
         <!-- Optional theme -->
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
 
@@ -78,16 +79,14 @@
         <div class="col-lg-6">
           <label>Progress</label><br/>
           <div class="progress">
-            <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100" style="width: 1%" id="progress_bar">
+            <div class="progress-bar" role="progressbar" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100" style="width: 1%" id="progress_bar">
             </div>
           </div>
           <label>Console</label><br/>
-          <textarea readonly class="form-control" rows="5" id="console"></textarea>
+          <textarea readonly class="form-control" rows="7" id="console"></textarea>
         </div>
         <br/>
       </div>
-
-      <!-- <a href="" id="lpengr">Parse Logs</a> -->
 
       <div class="container">
         <div class="col-lg-6">
@@ -127,27 +126,27 @@
               <a href="#" class="pull-right hidden_links" onclick="document.getElementById('log_viewer_form').submit();">Log Viewer</a>
               <span class="hidden_controls">
                 <textarea class="result_logs" name="loglines"></textarea>
-                <input type="checkbox" name="G" value="G" chcked>
-                <input type="checkbox" name="F" value="F" chcked>
-                <input type="checkbox" name="S" value="S" chcked>
-                <input type="checkbox" name="R" value="R" chcked>
-                <input type="checkbox" name="f" value="f" chcked>
-                <input type="checkbox" name="r" value="r" chcked>
-                <input type="checkbox" name="type" value="type" chcked>
-                <input type="checkbox" name="time" value="time" chcked>
-                <input type="checkbox" name="requestid" value="requestid" chcked>
-                <input type="checkbox" name="clientip" value="clientip" chcked>
-                <input type="checkbox" name="arl" value="arl" chcked>
-                <input type="checkbox" name="method" value="method" chcked>
-                <input type="checkbox" name="status" value="status" chcked>
-                <input type="checkbox" name="contentlength" value="contentlength" chcked>
-                <input type="checkbox" name="totalsizeserved" value="totalsizeserved" chcked>
-                <input type="checkbox" name="originresp" value="originresp" chcked>
-                <input type="checkbox" name="transfer" value="transfer" chcked>
-                <input type="checkbox" name="totaltime" value="totaltime" chcked>
-                <input type="checkbox" name="error" value="error" chcked>
-                <input type="checkbox" name="forwardip" value="forwardip" chcked>
-                <input type="checkbox" name="misc" value="misc" chcked>
+                <input type="checkbox" name="G" value="G" checked>
+                <input type="checkbox" name="F" value="F" checked>
+                <input type="checkbox" name="S" value="S" checked>
+                <input type="checkbox" name="R" value="R" checked>
+                <input type="checkbox" name="f" value="f" checked>
+                <input type="checkbox" name="r" value="r" checked>
+                <input type="checkbox" name="type" value="type" checked>
+                <input type="checkbox" name="time" value="time" checked>
+                <input type="checkbox" name="requestid" value="requestid" checked>
+                <input type="checkbox" name="clientip" value="clientip" checked>
+                <input type="checkbox" name="arl" value="arl" checked>
+                <input type="checkbox" name="method" value="method" checked>
+                <input type="checkbox" name="status" value="status" checked>
+                <input type="checkbox" name="contentlength" value="contentlength" checked>
+                <input type="checkbox" name="totalsizeserved" value="totalsizeserved" checked>
+                <input type="checkbox" name="originresp" value="originresp" checked>
+                <input type="checkbox" name="transfer" value="transfer" checked>
+                <input type="checkbox" name="totaltime" value="totaltime" checked>
+                <input type="checkbox" name="error" value="error" checked>
+                <input type="checkbox" name="forwardip" value="forwardip" checked>
+                <input type="checkbox" name="misc" value="misc" checked>
               </span>
           </form>
           <form method="POST" action="http://lp.engr.akamai.com/lp.cgi" target="_blank" id="log_parser_form" style="display: inline;">
@@ -183,7 +182,31 @@
         $(".hidden_links").hide();
         $(".hidden_controls").hide();
         
-        $("#submit").click(function() {    
+        $("#submit").click(function() { 
+          // socket.on('disconnect', function() {
+          //   console.log("socket.io disconnected");
+          // });
+          
+          // socket.on('connect', function() {
+          //   console.log("socket.io connected");
+          // });
+
+          var progress = 1;
+          var progressVar = setInterval(progressTimer, 1000);
+          var progressLogdiver = 0;
+          function progressTimer() {
+            if(progress < 40) {
+              progress += Math.floor((Math.random() * 6) + 1);
+            } else if(progress <= progressLogdiver) {
+              progress = progressLogdiver;
+            } 
+
+            $('#progress_bar').attr('style', 'width: ' + progress + '%');
+            if(progress >= 100) {
+              window.clearInterval(progressVar);
+            }
+          }
+
           function init() {
             $('#result_request_header').text('');
             $('#progress_bar').removeClass('progress-bar-warning');
@@ -196,51 +219,47 @@
             $("#submit").prop("disabled", true);
           }
 
-          var $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
-          var socket = io.connect($SCRIPT_ROOT);
-
-          socket.on('disconnect', function() {
-            console.log("socket.io disconnected");
-          });
-
-          socket.on('connect', function() {
-            console.log("socket.io connected");
-          });
-
           init();
-          
+
+          var $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
           var url = $('#url').val();
+          var socket = io.connect($SCRIPT_ROOT);
           var server_ip = $('#server_ip').val();
-          socket.emit('log_diver', { 'url': encodeURI(url),
+          socket.emit('log_diver', { 
+            'url': encodeURI(url),
             'server_ip': server_ip });
 
           socket.on('log_diver', function(message) {
             var json = jQuery.parseJSON(message);
+
             if (json.type == "request") {
               $('#result_request_header').text(json.content);
-              $('#progress_bar').attr('style', 'width:' + json.progress);
-              $('#console').append('Request Done\n')
+              $('#console').append('=> Request Done\n')
             } else if (json.type == "response") {
               $('#result_response_header').text(json.content);
-              $('#progress_bar').attr('style', 'width:' + json.progress);
-              $('#console').append('Response Done\n')
+              $('#console').append('=> Response Done\n')
+            } else if(json.type == "console") {
+              $('#console').append(json.content);
+              $('#console').scrollTop($('#console')[0].scrollHeight);
             } else if(json.type == "progress") {
-                $('#progress_bar').attr('style', 'width:' + json.progress);
+              progressLogdiver = json.content.trim();
+              if (progressLogdiver >= 100) {
+                window.clearInterval(progressVar);
+                $('#progress_bar').attr('style', 'width: 100%');
+              }
             } else if(json.type == "error") {
+                window.clearInterval(progressVar);
                 init();
                 $('#progress_bar').addClass('progress-bar-warning');
                 $('#progress_bar').attr('style', 'width: 100%');
                 $('#console').append(json.message);
                 $('#url').focus().select();
                 $("#submit").prop("disabled", false);
-                socket.on('disconnect', function() {
-                  console.log("socket.io disconnected");
-                });
+                
             } else if(json.type == "log") {
               $('.result_logs').append(json.content.trim());
               $('.hidden_links').show();
               $('#result_others').append(json.others.trim());
-              $('#progress_bar').attr('style', 'width:' + json.progress);
               $("#googlemap").attr("src", "/googlemap?google_maps=" + json.summery);
               
               var summery = JSON.parse(json.summery.replace(/'/g, "\""));
@@ -250,12 +269,9 @@
                 '<tr><td>' + summery[i][0] + '</td><td>' + summery[i][4] + '</td><td>' + summery[i][5] + '</td><td>' + summery[i][3] + '</td></tr>');
                 }
 
-              $('#console').append('Log Done\n');
-
               $("#submit").prop("disabled", false);
               $('#url').focus();
-
-              socket.disconnect();
+              // socket.disconnect();
             }
           });
         });

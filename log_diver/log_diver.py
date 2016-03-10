@@ -114,7 +114,7 @@ def log_diver(data):
     summery = [['U', 37.3519, -121.952, 0, '0.0.0.0', 'US SANTACLARA'],]
     while pipe.poll() is None:
         line = pipe.stdout.readline().decode('utf-8')
-        
+
         if line.startswith("[Request Header]"):
             status = REQUEST_HEADER
             continue
@@ -133,19 +133,24 @@ def log_diver(data):
                 status = IMAGE_LOG
                 others = "Image Logs"
             continue
-        # elif line.startswith("\rProgress:"):
-        #     progress = line.split(' ')[1]
-        #     emit('log_diver', json.dumps({
-        #         'type': 'progress',
-        #         'progress': progress,
-        #     }))
-        #     continue
+        elif line.startswith("[Console]"):
+            emit('log_diver', json.dumps({
+                    'type': 'console',
+                    'content': line.split("|")[1]
+                }))
+            continue
+        elif line.startswith("[Progress]"):
+            emit('log_diver', json.dumps({
+                'type': 'progress',
+                'content': line.split(" ")[1]
+            }))
+            continue
+
 
         if status == REQUEST_HEADER:
             if line.startswith("[/Request Header]"):
                 emit('log_diver', json.dumps({
                     'type': 'request',
-                    'progress': '30%',
                     'content': request_header
                 }))
             request_header = request_header + line
@@ -153,7 +158,6 @@ def log_diver(data):
             if line.startswith("[/Response Header]"):
                 emit('log_diver', json.dumps({
                     'type': 'response',
-                    'progress': '40%',
                     'content': response_header
                 }))
             response_header = response_header + line
@@ -188,7 +192,6 @@ def log_diver(data):
 
     emit('log_diver', json.dumps({
         'type': 'log',
-        'progress': '100%',
         'content': logs,
         'others': others,
         'summery': str(summery)
