@@ -156,7 +156,7 @@
           <textarea readonly class="form-control result_logs" rows="10" name="loglines"></textarea>
           <br/>
           <label>Others</label><br/>
-          <textarea readonly class="form-control result_logs" rows="10" id="result_others"></textarea>
+          <textarea readonly class="form-control" rows="10" id="result_others"></textarea>
         </div>
       </div>
       <!-- 
@@ -213,6 +213,7 @@
             $('#console').text('');
             $('#result_response_header').text('');
             $('.result_logs').text('');
+            $('#result_others').text('');
             $("#summery_table").find("tr:not(:first)").remove();
             $(".hidden_links").hide();
             $("#submit").prop("disabled", true);

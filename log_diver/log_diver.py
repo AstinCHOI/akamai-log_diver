@@ -37,6 +37,7 @@ def log_diver(data):
     RESPONSE_HEADER = 2
     LOG = 3
     IMAGE_LOG = 4
+    ORIGIN = 5
 
     url = data['url']
     server_ip = data['server_ip']
@@ -130,14 +131,14 @@ def log_diver(data):
             if edge_log.startswith('image_server'):
                 edge = 'I'
                 ip_address = edge_log.split(' ')[1]
-                summery.append([edge, location_log[1], location_log[2], 0, ip_address, location_log[0]])
+                summery.append([edge, location_log[1], location_log[2], '-', ip_address, location_log[0]])
                 status = IMAGE_LOG
                 others = "[Image Logs]\n"
             elif edge_log.startswith('origin'):
                 edge = 'O'
                 ip_address = edge_log.split(' ')[1]
                 origin = [edge, location_log[1], location_log[2], '-', ip_address, location_log[0]]
-                # status = ORIGIN
+                status = ORIGIN
             continue
         elif line.startswith("[Console]"):
             emit('log_diver', json.dumps({
@@ -183,11 +184,15 @@ def log_diver(data):
                     edge = 'C'
                     ip_address = edge_log              
                 
-                summery.append([edge, location_log[1], location_log[2], 0, ip_address, location_log[0]])
-                # TODO: Log Time
-                # times = line.split(' ')
-                # total = int(times[4]) + int(times[5]) + int(times[6])
-                # google_maps.append([google_map[0], google_map[1], google_map[2], total])
+                raw_log = line.split(' ')
+                total_time = (int(raw_log[4]) + int(raw_log[5]) + int(raw_log[6])) \
+                    + (0 if raw_log[3] == '-' else int(raw_log[3]))
+                if raw_log[1] == 'r' or raw_log[1] == 'S':
+                    pass    
+                elif raw_log[1] == 'f':
+                    total_time += int(raw_log[7])
+
+                summery.append([edge, location_log[1], location_log[2], round(total_time * 0.001, 2), ip_address, location_log[0]])
             
                 logs = logs + line
         elif status == IMAGE_LOG:
