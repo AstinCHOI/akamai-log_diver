@@ -211,7 +211,7 @@ def log_diver(data):
         'summery': str(summery)
     }))
 
-    disconnect();
+    disconnect()
 
 # import re
 # from jinja2 import evalcontextfilter, Markup, escape

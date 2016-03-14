@@ -171,6 +171,12 @@
         
         $(".hidden_links").hide();
         $(".hidden_controls").hide();
+
+        $("#url").bind('keydown', function(e) {
+          if (e.keyCode == 13) {
+            $("#submit").click();
+          }
+        });
         
         $("#submit").click(function() { 
           // socket.on('connect', function() {
@@ -197,6 +203,7 @@
           }
 
           function init() {
+            progress = 1;
             $('#result_request_header').text('');
             $('#progress_bar').removeClass('progress-bar-warning');
             $('#progress_bar').attr('style', 'width: 1%');
@@ -261,7 +268,6 @@
 
               $("#submit").prop("disabled", false);
               $('#url').focus();
-              socket.disconnect();
             }
           });
         });
