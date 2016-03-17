@@ -1,4 +1,6 @@
-from log_diver import application
+from gevent import monkey; monkey.patch_all()
+from log_diver import socketio, application
+
 
 if __name__ == "__main__":
-    application.run()
+    socketio.run()
