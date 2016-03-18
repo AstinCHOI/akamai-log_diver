@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, url_for, jsonify, stream_with
 from flask_socketio import send, emit, disconnect, SocketIO
 from urllib.parse import urlparse, urljoin
 
-import subprocess, logging, json, ipaddress, socket
+import subprocess, logging, json, ipaddress, socket, time
 import secrets
 
 
@@ -25,10 +25,6 @@ def googlemap():
         ];
     
     return render_template('googlemap.html', maps=google_maps)
-
-
-def percentinize_(progress):
-    return '{}%'.format(progress)
 
 
 @socketio.on('log_diver')
@@ -141,10 +137,20 @@ def log_diver(data):
                 status = ORIGIN
             continue
         elif line.startswith("[Console]"):
-            emit('log_diver', json.dumps({
-                    'type': 'console',
-                    'content': line.split("|")[1]
-                }))
+            console = line.split("|")[1]
+
+            if console.startswith("[error]"):
+                emit('log_diver', json.dumps({
+                        'type': 'error',
+                        'message': console
+                    }))
+                disconnect()
+                return
+            else:
+                emit('log_diver', json.dumps({
+                        'type': 'console',
+                        'content': console
+                    }))
             continue
         elif line.startswith("[Progress]"):
             emit('log_diver', json.dumps({
@@ -196,7 +202,7 @@ def log_diver(data):
             
                 logs = logs + line
         elif status == IMAGE_LOG:
-            if line.startswith("[/Log]"):
+            if line.startswith("[/Log]") or line.startswith("\"\""):
                 pass
             else:
                 others = others + line
@@ -227,8 +233,7 @@ def log_diver(data):
 #     if eval_ctx.autoescape:
 #         result = Markup(result)
 #     return result
-#test
 
-if __name__ == "__main__":
-    # application.run(host='0.0.0.0')
-    socketio.run(application)
+
+# if __name__ == "__main__":
+#     socketio.run(application)

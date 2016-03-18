@@ -183,15 +183,12 @@
           //   console.log("socket.io connected");
           // });
 
-          // socket.on('disconnect', function() {
-          //   console.log("socket.io disconnected");
-          // });
           var progress = 1;
           var progressVar = setInterval(progressTimer, 1000);
           var progressLogdiver = 0;
           function progressTimer() {
-            if(progress < 40) {
-              progress += Math.floor((Math.random() * 6) + 1);
+            if(progress < 30) {
+              progress += Math.floor((Math.random() * 12) + 1);
             } else if(progress <= progressLogdiver) {
               progress = progressLogdiver;
             } 
@@ -204,6 +201,8 @@
 
           function init() {
             progress = 1;
+            progressLogdiver = 0;
+            
             $('#result_request_header').text('');
             $('#progress_bar').removeClass('progress-bar-warning');
             $('#progress_bar').attr('style', 'width: 1%');
@@ -269,6 +268,12 @@
               $("#submit").prop("disabled", false);
               $('#url').focus();
             }
+          });
+
+          socket.on('disconnect', function() {
+            progress = 1;
+            progressLogdiver = 0;
+            window.clearInterval(progressVar);
           });
         });
       </script>
