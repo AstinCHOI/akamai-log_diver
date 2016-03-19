@@ -1,12 +1,8 @@
 To-do List
+- Host Header with Ruby
+- CDN js, css and img
 - summery table time
-- logging
-
-- google map entire view
-- devide it to functions (refectoring)
-- change to geventwebsocket
 - README <- description
-- maximum size of msg
 
 Done
 - URL Name regex Check (http://, https://)
@@ -17,3 +13,7 @@ Done
 - correct progress
 - Adapt Host headers' text
 - server IP selection
+- change to geventwebsocket
+
+Considering
+- google map entire view
