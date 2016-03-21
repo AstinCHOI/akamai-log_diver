@@ -28,8 +28,12 @@ html, body {
 }
 </style>
 <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBWXSsnIR_BgsQ7wZBIoxYABRtI6FGwnuU&signed_in=true"></script>
+<script src="http://diver.astinchoi.com/diver/static/js/googlemap_label.js" type="text/javascript"></script>
+<script src="http://diver.astinchoi.com/diver/static/js/googlemap_oms.min.js" type="text/javascript"></script>
+<!--
 <script type="text/javascript" src="{{ url_for('static', filename='js/googlemap_label.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='js/googlemap_oms.min.js') }}"></script>
+-->
 <script>
 	//Log Info
 	// var mapInfo = [ [ 'C', 12.98, 77.58, 0, '60.254.150.132', 'IN BANGALORE' ],
@@ -77,33 +81,61 @@ html, body {
 			//set up image marker
 			switch(mapInfo[i][0]) {
 				case 'U':
-					imgMarker = "{{ url_for('static', filename='img/GoogleMapsMarkers/red_MarkerU.png') }}";
+					imgMarker = "http://diver.astinchoi.com/diver/static/img/GoogleMapsMarkers/red_MarkerU.png') }}";
 					textTitle = "User : " + mapInfo[i][4] + " (" + mapInfo[i][5] + ")";
 					break;
 				case 'C':
-					imgMarker = "{{ url_for('static', filename='img/GoogleMapsMarkers/orange_MarkerC.png') }}";
+					imgMarker = "http://diver.astinchoi.com/diver/static/img/GoogleMapsMarkers/orange_MarkerC.png') }}";
 					textTitle = "Child Edge : " + mapInfo[i][4] + " (" + mapInfo[i][5] + ")";
 					break;
 				case 'P':
-					imgMarker = "{{ url_for('static', filename='img/GoogleMapsMarkers/yellow_MarkerP.png') }}";
+					imgMarker = "http://diver.astinchoi.com/diver/static/img/GoogleMapsMarkers/yellow_MarkerP.png') }}";
 					textTitle = "Parent : " + mapInfo[i][4] + " (" + mapInfo[i][5] + ")";
 					break;
 				case 'G':
-					imgMarker = "{{ url_for('static', filename='img/GoogleMapsMarkers/green_MarkerG.png') }}";
+					imgMarker = "http://diver.astinchoi.com/diver/static/img/GoogleMapsMarkers/green_MarkerG.png') }}";
 					textTitle = "Peer : " + mapInfo[i][4] + " (" + mapInfo[i][5] + ")";
 					break;
 				case 'I':
-					imgMarker = "{{ url_for('static', filename='img/GoogleMapsMarkers/blue_MarkerI.png') }}";
+					imgMarker = "http://diver.astinchoi.com/diver/static/img/GoogleMapsMarkers/blue_MarkerI.png') }}";
 					textTitle = "Origin : " + mapInfo[i][4] +" (" +  mapInfo[i][5] + ")";
 					break;
 				case 'O':
-					imgMarker = "{{ url_for('static', filename='img/GoogleMapsMarkers/purple_MarkerO.png') }}";
+					imgMarker = "http://diver.astinchoi.com/diver/static/img/GoogleMapsMarkers/purple_MarkerO.png') }}";
 					textTitle = "Image : " + mapInfo[i][4] + " (" + mapInfo[i][5] + ")";
 					break;
 				default:
-					imgMarker = "{{ url_for('static', filename='img/GoogleMapsMarkers/brown_MarkerS.png') }}";
+					imgMarker = "http://diver.astinchoi.com/diver/static/img/GoogleMapsMarkers/brown_MarkerS.png') }}";
 					textTitle = "Something : " + mapInfo[i][4] +" (" +  mapInfo[i][5] + ")";
 					break;
+				// case 'U':
+				// 	imgMarker = "{{ url_for('static', filename='img/GoogleMapsMarkers/red_MarkerU.png') }}";
+				// 	textTitle = "User : " + mapInfo[i][4] + " (" + mapInfo[i][5] + ")";
+				// 	break;
+				// case 'C':
+				// 	imgMarker = "{{ url_for('static', filename='img/GoogleMapsMarkers/orange_MarkerC.png') }}";
+				// 	textTitle = "Child Edge : " + mapInfo[i][4] + " (" + mapInfo[i][5] + ")";
+				// 	break;
+				// case 'P':
+				// 	imgMarker = "{{ url_for('static', filename='img/GoogleMapsMarkers/yellow_MarkerP.png') }}";
+				// 	textTitle = "Parent : " + mapInfo[i][4] + " (" + mapInfo[i][5] + ")";
+				// 	break;
+				// case 'G':
+				// 	imgMarker = "{{ url_for('static', filename='img/GoogleMapsMarkers/green_MarkerG.png') }}";
+				// 	textTitle = "Peer : " + mapInfo[i][4] + " (" + mapInfo[i][5] + ")";
+				// 	break;
+				// case 'I':
+				// 	imgMarker = "{{ url_for('static', filename='img/GoogleMapsMarkers/blue_MarkerI.png') }}";
+				// 	textTitle = "Origin : " + mapInfo[i][4] +" (" +  mapInfo[i][5] + ")";
+				// 	break;
+				// case 'O':
+				// 	imgMarker = "{{ url_for('static', filename='img/GoogleMapsMarkers/purple_MarkerO.png') }}";
+				// 	textTitle = "Image : " + mapInfo[i][4] + " (" + mapInfo[i][5] + ")";
+				// 	break;
+				// default:
+				// 	imgMarker = "{{ url_for('static', filename='img/GoogleMapsMarkers/brown_MarkerS.png') }}";
+				// 	textTitle = "Something : " + mapInfo[i][4] +" (" +  mapInfo[i][5] + ")";
+				// 	break;
 			}
 
 			var loc = new google.maps.LatLng(mapInfo[i][1], mapInfo[i][2]);
