@@ -35,10 +35,11 @@ def log_diver(data):
     IMAGE_LOG = 4
     ORIGIN = 5
 
-    url = data['url']
+    input_url = data['input_url']
     server_ip = data['server_ip']
-
-    url_obj = urlparse(url)
+    req_header = data['req_header']
+    
+    url_obj = urlparse(input_url)
     hostname = url_obj.hostname
 
     if not hostname:
@@ -86,8 +87,12 @@ def log_diver(data):
             return
                
         new_url = '{}://{}{}{}{}{}'.format(url_obj.scheme, server_ip, url_obj.path, url_obj.params, url_obj.query, url_obj.fragment)
-        pipe = subprocess.Popen(secrets.LSG_COMMAND_WITH_HOST.format(new_url, hostname), \
-            shell=True, stdout=subprocess.PIPE)
+        
+        if req_header:
+            kurl_req_header = '\"-H ' + ' -H '.join(req_header.strip().replace(' ', '\ ').split('\n')) + '\"'
+            pipe = subprocess.Popen(secrets.LSG_COMMAND_WITH_HOST_AND_HEADER.format(new_url, hostname, kurl_req_header), shell=True, stdout=subprocess.PIPE)
+        else:
+            pipe = subprocess.Popen(secrets.LSG_COMMAND_WITH_HOST.format(new_url, hostname), shell=True, stdout=subprocess.PIPE)
     else:
         try:
             socket.gethostbyname('a' + socket.gethostbyname(hostname).replace('.','-') +'.deploy.akamaitechnologies.com')
@@ -99,8 +104,12 @@ def log_diver(data):
             disconnect();
             return
 
-        pipe = subprocess.Popen(secrets.LSG_COMMAND.format(url), \
-            shell=True, stdout=subprocess.PIPE)
+        if req_header:
+            kurl_req_header = '\"-H ' + ' -H '.join(req_header.strip().replace(' ', '\ ').split('\n')) + '\"'
+            pipe = subprocess.Popen(secrets.LSG_COMMAND_WITH_HEADER.format(input_url, kurl_req_header), shell=True, stdout=subprocess.PIPE)
+        else:
+            pipe = subprocess.Popen(secrets.LSG_COMMAND.format(input_url), shell=True, stdout=subprocess.PIPE)
+
 
     status = 0
     progress = ''

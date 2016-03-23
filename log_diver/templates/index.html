@@ -41,7 +41,7 @@
             <div class="col-lg-10">
               <div class="form-group">
                 <label>URL</label>
-                <input type="text" name="url" class="form-control" id="url">
+                <input type="text" name="input_url" class="form-control" id="input_url">
               </div>
             </div>
           </div>
@@ -68,7 +68,7 @@
             <div class="col-lg-10">
               <div class="form-group">
                 <label>Request Header</label>
-                <textarea class="form-control" rows="3" id="result_request_header"></textarea>
+                <textarea class="form-control" rows="3" id="req_header"></textarea>
               </div>
             </div>
           </div>
@@ -226,7 +226,7 @@
             progress = 1;
             progressLogdiver = 0;
             
-            $('#result_request_header').text('');
+            $('#req_header').text('');
             $('#progress_bar').removeClass('progress-bar-warning');
             $('#progress_bar').attr('style', 'width: 1%');
             $('#console').text('');
@@ -241,22 +241,23 @@
           init();
 
           var $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
-          var url = $('#url').val();
           var socket = io.connect($SCRIPT_ROOT);
+          var input_url = $('#input_url').val();
           var server_ip = $('#server_ip').val();
+          var req_header = $('#req_header').val();
+
           socket.emit('log_diver', { 
-            'url': encodeURI(url),
-            'server_ip': server_ip });
+            'input_url': encodeURI(input_url),
+            'server_ip': server_ip,
+            'req_header': req_header });
 
           socket.on('log_diver', function(message) {
             var json = jQuery.parseJSON(message);
 
             if (json.type == "request") {
-              $('#result_request_header').text(json.content);
-              $('#console').append('=> Request Done\n')
+              $('#console').append('[Request Header]\n' + json.content)
             } else if (json.type == "response") {
               $('#result_response_header').text(json.content);
-              $('#console').append('=> Response Done\n')
             } else if(json.type == "console") {
               $('#console').append(json.content);
               $('#console').scrollTop($('#console')[0].scrollHeight);
@@ -272,7 +273,7 @@
                 $('#progress_bar').addClass('progress-bar-warning');
                 $('#progress_bar').attr('style', 'width: 100%');
                 $('#console').append(json.message);
-                $('#url').focus().select();
+                $('#input_url').focus().select();
                 $("#submit").prop("disabled", false);
                 
             } else if(json.type == "log") {
@@ -289,7 +290,7 @@
                 }
 
               $("#submit").prop("disabled", false);
-              $('#url').focus();
+              $('#input_url').focus();
             }
           });
 
