@@ -1,6 +1,4 @@
 To-do List
-- Host Header with Ruby
-- CDN js, css and img
 - summery table time
 - README <- description
 
@@ -14,6 +12,8 @@ Done
 - Adapt Host headers' text
 - server IP selection
 - change to geventwebsocket
+- Host Header with Ruby (Pragma)
+- CDN js, css and img
 
 Considering
 - google map entire view
