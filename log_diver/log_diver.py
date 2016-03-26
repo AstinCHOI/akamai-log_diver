@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, url_for, jsonify, stream_with
 from flask_socketio import send, emit, disconnect, SocketIO
 from urllib.parse import urlparse, urljoin
 
-import subprocess, logging, json, ipaddress, socket, time
+import subprocess, logging, json, ipaddress, socket, time, re
 import secrets
 
 
@@ -205,10 +205,12 @@ def log_diver(data):
                 total_time = (int(raw_log[4]) + int(raw_log[5]) + int(raw_log[6])) \
                     + (0 if raw_log[3] == '-' else int(raw_log[3]))
                 if raw_log[1] == 'r' or raw_log[1] == 'S':
-                    if raw_log[10] == '127.0.0.1':
+                    if raw_log[10] == '127.0.0.1' or \
+                       re.match('.*[t|X|C|U|T].*' , raw_log[17]):
                         continue
                 elif raw_log[1] == 'f':
-                    if raw_log[11] == '127.0.0.1':
+                    if raw_log[11] == '127.0.0.1' or \
+                       re.match('.*[w|l|F|C|U|T].*', raw_log[18]):
                         continue
                     total_time += int(raw_log[7])
 
