@@ -81,7 +81,7 @@ def log_diver(data):
         except socket.gaierror:
             emit('log_diver', json.dumps({
                 'type': 'error',
-                'message': 'Invalid IP.',
+                'message': 'Invalid IP. ㅇ',
             }))
             disconnect();
             return
@@ -202,20 +202,21 @@ def log_diver(data):
                 logs = logs + line
 
                 raw_log = line.split(' ')
-                total_time = (int(raw_log[4]) + int(raw_log[5]) + int(raw_log[6])) \
-                    + (0 if raw_log[3] == '-' else int(raw_log[3]))
                 if raw_log[1] == 'r' or raw_log[1] == 'S':
                     if raw_log[10] == '127.0.0.1' or \
                        re.match('.*[t|X|C|U|T].*' , raw_log[17]):
                         continue
-                elif raw_log[1] == 'f':
-                    if raw_log[11] == '127.0.0.1' or \
-                       re.match('.*[w|l|F|C|U|T].*', raw_log[18]):
-                        continue
-                    total_time += int(raw_log[7])
-
-                summery.append([edge, location_log[1], location_log[2], round(total_time * 0.001, 2), ip_address, location_log[0]])
-            
+                    else:
+                        total_time = (int(raw_log[4]) + int(raw_log[5]) + int(raw_log[6])) \
+                            + (0 if raw_log[3] == '-' else int(raw_log[3]))
+                        summery.append([edge, location_log[1], location_log[2], round(total_time * 0.001, 2), ip_address, location_log[0]])
+                # elif raw_log[1] == 'f':
+                #     if raw_log[11] == '127.0.0.1' or \
+                #        re.match('.*[w|l|F|C|U|T].*', raw_log[18]):
+                #         continue
+                #     total_time += int(raw_log[7])
+                else:
+                    continue
         elif status == IMAGE_LOG:
             if line.startswith("[/Log]") or line.startswith("\"\""):
                 pass
