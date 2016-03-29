@@ -118,7 +118,7 @@ def log_diver(data):
     logs = ''
     origin = []
     others = ''
-    summery = [['U', 37.3519, -121.952, 0, '0.0.0.0', 'US SANTACLARA'],]
+    summery = [['U', 37.3519, -121.952, 0, '0.0.0.0', 'US SANTACLARA', '', ''],]
     while pipe.poll() is None:
         line = pipe.stdout.readline().decode('utf-8')
         
@@ -209,7 +209,7 @@ def log_diver(data):
                     else:
                         total_time = (int(raw_log[4]) + int(raw_log[5]) + int(raw_log[6])) \
                             + (0 if raw_log[3] == '-' else int(raw_log[3]))
-                        summery.append([edge, location_log[1], location_log[2], round(total_time * 0.001, 2), ip_address, location_log[0]])
+                        summery.append([edge, location_log[1], location_log[2], round(total_time * 0.001, 2), ip_address, location_log[0], raw_log[13], raw_log[7]])
                 # elif raw_log[1] == 'f':
                 #     if raw_log[11] == '127.0.0.1' or \
                 #        re.match('.*[w|l|F|C|U|T].*', raw_log[18]):

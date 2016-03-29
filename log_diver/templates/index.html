@@ -122,6 +122,8 @@
                 <th width="50">Edge</th>
                 <th>IP</th>
                 <th>Location</th>
+                <th>Status</th>
+                <th>Size</th>
                 <th>Time</th>
               </tr>
             </table>
@@ -286,7 +288,7 @@
 
               for(i = 1; i < summery.length; i++) {
                 $("#summery_table").append(
-                '<tr><td>' + summery[i][0] + '</td><td>' + summery[i][4] + '</td><td>' + summery[i][5] + '</td><td>' + summery[i][3] + '</td></tr>');
+                '<tr><td>' + summery[i][0] + '</td><td>' + summery[i][4] + '</td><td>' + summery[i][5] + '</td><td>' + summery[i][6] + '</td><td>' + summery[i][7] + '</td><td>' + summery[i][3] + '</td></tr>');
                 }
 
               $("#submit").prop("disabled", false);
