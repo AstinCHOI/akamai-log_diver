@@ -136,13 +136,13 @@ def log_diver(data):
             if edge_log.startswith('image_server'):
                 edge = 'I'
                 ip_address = edge_log.split(' ')[1]
-                summery.append([edge, location_log[1], location_log[2], '-', ip_address, location_log[0]])
+                summery.append([edge, location_log[1], location_log[2], '-', ip_address, location_log[0], '-', '-'])
                 status = IMAGE_LOG
                 others = "[Image Logs]\n"
             elif edge_log.startswith('origin'):
                 edge = 'O'
                 ip_address = edge_log.split(' ')[1]
-                origin = [edge, location_log[1], location_log[2], '-', ip_address, location_log[0]]
+                origin = [edge, location_log[1], location_log[2], '-', ip_address, location_log[0], '-', '-']
                 status = ORIGIN
             continue
         elif line.startswith("[Console]"):
@@ -206,10 +206,14 @@ def log_diver(data):
                     if raw_log[10] == '127.0.0.1' or \
                        re.match('.*[t|X|C|U|T].*' , raw_log[17]):
                         continue
-                    else:
-                        total_time = (int(raw_log[4]) + int(raw_log[5]) + int(raw_log[6])) \
+
+                    total_time = (int(raw_log[4]) + int(raw_log[5]) + int(raw_log[6])) \
                             + (0 if raw_log[3] == '-' else int(raw_log[3]))
+
+                    if raw_log[1] == 'r':
                         summery.append([edge, location_log[1], location_log[2], round(total_time * 0.001, 2), ip_address, location_log[0], raw_log[13], raw_log[7]])
+                    else:
+                        summery.append([edge, location_log[1], location_log[2], round(total_time * 0.001, 2), ip_address, location_log[0], raw_log[15], raw_log[7]])
                 # elif raw_log[1] == 'f':
                 #     if raw_log[11] == '127.0.0.1' or \
                 #        re.match('.*[w|l|F|C|U|T].*', raw_log[18]):
