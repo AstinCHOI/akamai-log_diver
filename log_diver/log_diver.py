@@ -81,12 +81,13 @@ def log_diver(data):
         except socket.gaierror:
             emit('log_diver', json.dumps({
                 'type': 'error',
-                'message': 'Invalid IP. ㅇ',
+                'message': 'Invalid IP.',
             }))
             disconnect();
             return
-               
-        new_url = '{}://{}{}{}{}{}'.format(url_obj.scheme, server_ip, url_obj.path, url_obj.params, url_obj.query, url_obj.fragment)
+        
+        new_url = '{}://{}{}{}{}{}'.format(url_obj.scheme, server_ip, url_obj.path, url_obj.params, \
+            '?' + url_obj.query if url_obj.query else '', url_obj.fragment)
         
         if req_header:
             kurl_req_header = '\"-H ' + ' -H '.join(req_header.strip().replace(' ', '\ ').split('\n')) + '\"'
