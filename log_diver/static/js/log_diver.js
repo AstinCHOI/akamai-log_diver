@@ -48,7 +48,6 @@ $("#submit").click(function() {
 
   init();
 
-  var $SCRIPT_ROOT = "{{ request.script_root|tojson|safe }}";
   var socket = io.connect($SCRIPT_ROOT);
   var input_url = $('#input_url').val();
   var server_ip = $('#server_ip').val();
