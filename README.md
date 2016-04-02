@@ -20,4 +20,4 @@ $ gunicorn --bind 0.0.0.0:8000 wsgi -k geventwebsocket.gunicorn.workers.GeventWe
 * deploy script
 
 [geventwebsocket]: https://bitbucket.org/noppo/gevent-websocket
-[sample-image]: https://raw.githubusercontent.com/AstinCHOI/akamai-log_diver/master/log_diver/sample_image.png
+[sample-image]: https://raw.githubusercontent.com/AstinCHOI/akamai-log_diver/master/sample_image.png
