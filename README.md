@@ -19,6 +19,7 @@ $ gunicorn --bind 0.0.0.0:8000 wsgi -k geventwebsocket.gunicorn.workers.GeventWe
 ### TODO
 * deploy script
 * change the logic (Tool server)  
+* Load Balance setting  
 
 [geventwebsocket]: https://github.com/AstinCHOI/geventwebsocket
 [sample-image]: https://raw.githubusercontent.com/AstinCHOI/akamai-log_diver/master/sample_image.png
